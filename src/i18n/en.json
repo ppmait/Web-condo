@@ -93,6 +93,64 @@
       "prev": "Previous",
       "next": "Next"
     },
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Unit code or owner name",
+      "tower": "Tower",
+      "status": "Status",
+      "allTowers": "All towers",
+      "allStatuses": "All statuses"
+    },
+    "fields": {
+      "code": "Unit code",
+      "floor": "Floor",
+      "areaSqm": "Area (sqm)",
+      "type": "Unit type",
+      "ownerName": "Owner name",
+      "ownership": "Use",
+      "listRent": "List rent (baht)",
+      "closed": "Closed for renovation"
+    },
+    "unitStatus": {
+      "rented": "Rented",
+      "vacant": "Vacant",
+      "ownerOccupied": "Owner-occupied",
+      "closed": "Closed"
+    },
+    "unitType": {
+      "studio": "Studio",
+      "oneBed": "1 bedroom",
+      "twoBed": "2 bedrooms",
+      "threeBed": "3 bedrooms"
+    },
+    "ownership": {
+      "ownerOccupied": "Owner-occupied",
+      "forRent": "For rent"
+    },
+    "units": {
+      "add": "Add unit",
+      "addTitle": "Add a unit",
+      "editTitle": "Edit unit",
+      "save": "Save",
+      "towerFloor": "{{tower}} • floor {{floor}}",
+      "sqm": "{{area}} sqm",
+      "editLabel": "Edit unit {{code}}",
+      "deleteLabel": "Delete unit {{code}}",
+      "deleteTitle": "Delete unit",
+      "deleteConfirm": "Delete unit {{code}}? This cannot be undone.",
+      "deleteButton": "Delete",
+      "hasLeases": "This unit has leases and cannot be deleted. Mark it as closed instead.",
+      "lockedHint": "A unit that has leases cannot change its code or use",
+      "columns": {
+        "code": "Unit code",
+        "towerFloor": "Tower / floor",
+        "typeArea": "Type / area",
+        "owner": "Owner",
+        "status": "Status",
+        "rent": "Rent",
+        "actions": "Actions"
+      }
+    },
     "errors": {
       "code": "Unit code must look like A-1204 (one letter, a dash, 3–4 digits)",
       "codeTaken": "This unit code is already in use",

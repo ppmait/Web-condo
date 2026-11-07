@@ -93,6 +93,64 @@
       "prev": "ก่อนหน้า",
       "next": "ถัดไป"
     },
+    "filters": {
+      "search": "ค้นหา",
+      "searchPlaceholder": "รหัสห้อง หรือชื่อเจ้าของ",
+      "tower": "อาคาร",
+      "status": "สถานะ",
+      "allTowers": "ทุกอาคาร",
+      "allStatuses": "ทุกสถานะ"
+    },
+    "fields": {
+      "code": "รหัสห้อง",
+      "floor": "ชั้น",
+      "areaSqm": "ขนาด (ตร.ม.)",
+      "type": "ประเภทห้อง",
+      "ownerName": "ชื่อเจ้าของ",
+      "ownership": "การใช้งาน",
+      "listRent": "ค่าเช่าตั้งต้น (บาท)",
+      "closed": "ปิดปรับปรุง"
+    },
+    "unitStatus": {
+      "rented": "มีผู้เช่า",
+      "vacant": "ว่าง",
+      "ownerOccupied": "เจ้าของอยู่เอง",
+      "closed": "ปิดปรับปรุง"
+    },
+    "unitType": {
+      "studio": "สตูดิโอ",
+      "oneBed": "1 ห้องนอน",
+      "twoBed": "2 ห้องนอน",
+      "threeBed": "3 ห้องนอน"
+    },
+    "ownership": {
+      "ownerOccupied": "เจ้าของอยู่เอง",
+      "forRent": "ปล่อยเช่า"
+    },
+    "units": {
+      "add": "เพิ่มห้องชุด",
+      "addTitle": "เพิ่มห้องชุด",
+      "editTitle": "แก้ไขห้องชุด",
+      "save": "บันทึก",
+      "towerFloor": "{{tower}} • ชั้น {{floor}}",
+      "sqm": "{{area}} ตร.ม.",
+      "editLabel": "แก้ไขห้อง {{code}}",
+      "deleteLabel": "ลบห้อง {{code}}",
+      "deleteTitle": "ลบห้องชุด",
+      "deleteConfirm": "ต้องการลบห้อง {{code}} ใช่ไหม การลบนี้ไม่สามารถกู้คืนได้",
+      "deleteButton": "ลบ",
+      "hasLeases": "ห้องนี้มีสัญญาอยู่ ลบไม่ได้ ให้ใช้ \"ปิดปรับปรุง\" แทน",
+      "lockedHint": "ห้องที่มีสัญญาแล้วแก้รหัสห้องและการใช้งานไม่ได้",
+      "columns": {
+        "code": "รหัสห้อง",
+        "towerFloor": "อาคาร/ชั้น",
+        "typeArea": "ประเภท/ขนาด",
+        "owner": "เจ้าของ",
+        "status": "สถานะ",
+        "rent": "ค่าเช่า",
+        "actions": "จัดการ"
+      }
+    },
     "errors": {
       "code": "รหัสห้องต้องเป็นรูปแบบ A-1204 (ตัวอักษร 1 ตัว ขีด ตัวเลข 3–4 หลัก)",
       "codeTaken": "รหัสห้องนี้ถูกใช้แล้ว",
