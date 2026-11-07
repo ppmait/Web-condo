@@ -1,5 +1,11 @@
 {
   "common": {
     "appName": "Condo Management"
+  },
+  "status": {
+    "settled": "Settled",
+    "pending": "Pending",
+    "critical": "Critical",
+    "inactive": "Inactive"
   }
 }

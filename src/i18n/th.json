@@ -1,5 +1,11 @@
 {
   "common": {
     "appName": "ระบบบริหารคอนโด"
+  },
+  "status": {
+    "settled": "เรียบร้อย",
+    "pending": "รอดำเนินการ",
+    "critical": "เร่งด่วน",
+    "inactive": "ไม่ใช้งาน"
   }
 }
