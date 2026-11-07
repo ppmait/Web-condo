@@ -16,7 +16,7 @@ export default function RoleSwitcher({ role }: Props) {
       aria-label={t('shell.role')}
       value={role ?? ''}
       onChange={(e) => navigate(roleHome(e.target.value as Role))}
-      className="h-9 max-w-40 rounded border border-[#cbd5e1] bg-surface-container-lowest px-2 text-sm text-primary-container"
+      className="h-9 max-w-28 sm:max-w-40 rounded border border-[#cbd5e1] bg-surface-container-lowest px-2 text-sm text-primary-container"
     >
       {role === null && <option value="" disabled />}
       {ROLES.map((r) => (

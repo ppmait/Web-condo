@@ -50,8 +50,10 @@ export default function AppShell() {
               </span>
             </button>
           )}
-          <span className="truncate font-semibold text-primary-container">{t('common.appName')}</span>
-          <div className="ml-auto flex items-center gap-2">
+          <span className="min-w-0 flex-1 truncate font-semibold text-primary-container">
+            {t('common.appName')}
+          </span>
+          <div className="flex shrink-0 items-center gap-2">
             <RoleSwitcher role={role} />
             <LanguageToggle />
           </div>

@@ -59,6 +59,18 @@ describe('AppShell mobile drawer', () => {
   })
 })
 
+describe('AppShell header on narrow screens', () => {
+  // found in a 390px screenshot: the title pushed the role switcher and EN button off screen
+  it('lets the title shrink and keeps the role switcher and language toggle from shrinking', () => {
+    renderAt('/tenant/overview')
+    const title = screen.getByText('ระบบบริหารคอนโด')
+    expect(title).toHaveClass('min-w-0', 'flex-1', 'truncate')
+    const actions = screen.getByRole('combobox', { name: 'บทบาท' }).parentElement
+    expect(actions).toHaveClass('shrink-0')
+    expect(screen.getByRole('combobox', { name: 'บทบาท' })).toHaveClass('max-w-28')
+  })
+})
+
 describe('AppShell menu labels', () => {
   it('truncates long labels and keeps the full label as a title', () => {
     renderAt('/juristic/dashboard')
