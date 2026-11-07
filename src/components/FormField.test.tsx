@@ -21,6 +21,19 @@ describe('FormField', () => {
     expect(input).toHaveAccessibleDescription('ต้องมากกว่า 0')
   })
 
+  it('hands the caller input styling: 40px tall, slate border, error border when invalid', () => {
+    render(
+      <>
+        <FormField label="ก">{(a) => <input {...a} />}</FormField>
+        <FormField label="ข" error="ผิด">
+          {(a) => <input {...a} />}
+        </FormField>
+      </>,
+    )
+    expect(screen.getByLabelText('ก')).toHaveClass('h-10', 'border-[#cbd5e1]')
+    expect(screen.getByLabelText('ข')).toHaveClass('h-10', 'border-error')
+  })
+
   it('is valid and has no description without an error', () => {
     render(<FormField label="หมายเหตุ">{(a) => <input {...a} />}</FormField>)
     const input = screen.getByLabelText('หมายเหตุ')

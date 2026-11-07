@@ -1,14 +1,24 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router'
+import { MemoryRouter, useNavigate } from 'react-router'
 import { describe, expect, it } from 'vitest'
 import '../i18n'
 import { AppRoutes } from './router'
+
+function BackButton() {
+  const navigate = useNavigate()
+  return (
+    <button type="button" onClick={() => navigate(-1)}>
+      browser-back
+    </button>
+  )
+}
 
 function renderAt(path: string) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <AppRoutes />
+      <BackButton />
     </MemoryRouter>,
   )
 }
@@ -51,6 +61,36 @@ describe('AppShell mobile drawer', () => {
     await userEvent.click(menuButton())
     await userEvent.selectOptions(screen.getByRole('combobox', { name: 'บทบาท' }), 'technician')
     expect(menuButton()).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('stays closed after browser Back to the page the drawer was opened on', async () => {
+    renderAt('/tenant/overview')
+    await userEvent.click(menuButton())
+    await userEvent.click(screen.getByRole('link', { name: 'พัสดุของฉัน' }))
+    await userEvent.click(screen.getByRole('button', { name: 'browser-back' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'ภาพรวมห้องชุด' })).toBeInTheDocument()
+    expect(menuButton()).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('closes when the menu item for the current page is chosen', async () => {
+    renderAt('/tenant/overview')
+    await userEvent.click(menuButton())
+    await userEvent.click(screen.getByRole('link', { name: 'ภาพรวมห้องชุด' }))
+    expect(menuButton()).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('stays closed after switching role away and back', async () => {
+    renderAt('/tenant/overview')
+    await userEvent.click(menuButton())
+    const switcher = () => screen.getByRole('combobox', { name: 'บทบาท' })
+    await userEvent.selectOptions(switcher(), 'juristic')
+    await userEvent.selectOptions(switcher(), 'tenant')
+    expect(menuButton()).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('keeps the sidebar in view while a tall page scrolls', () => {
+    renderAt('/tenant/overview')
+    expect(screen.getByRole('navigation')).toHaveClass('md:sticky', 'md:top-0', 'md:h-screen')
   })
 
   it('has no menu button on an unknown top-level route', () => {

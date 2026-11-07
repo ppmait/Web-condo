@@ -62,6 +62,29 @@ describe('Modal', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
+  it('keeps Tab and Shift+Tab focus inside the dialog', async () => {
+    const user = userEvent.setup()
+    render(
+      <>
+        <button type="button">นอกก่อน</button>
+        <Modal open title="t" onClose={() => {}}>
+          <button type="button">A</button>
+          <button type="button">B</button>
+        </Modal>
+        <button type="button">นอกหลัง</button>
+      </>,
+    )
+    const dialog = screen.getByRole('dialog')
+    for (let i = 0; i < 6; i++) {
+      await user.tab()
+      expect(dialog).toContainElement(document.activeElement as HTMLElement)
+    }
+    for (let i = 0; i < 6; i++) {
+      await user.tab({ shift: true })
+      expect(dialog).toContainElement(document.activeElement as HTMLElement)
+    }
+  })
+
   it('moves focus into the dialog and returns it to the opener on close', async () => {
     const user = userEvent.setup()
     render(<Harness />)

@@ -10,15 +10,16 @@ export default function AppShell() {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const role = roleFromPath(pathname)
-  // the drawer is open only for the route it was opened on, so a route change closes it
-  const [openedAt, setOpenedAt] = useState<string | null>(null)
-  const drawerOpen = openedAt === pathname
-  const closeDrawer = () => setOpenedAt(null)
+  // any route change closes the drawer (adjusting state during render, not in an effect)
+  const [drawer, setDrawer] = useState({ open: false, pathname })
+  if (drawer.pathname !== pathname) setDrawer({ open: false, pathname })
+  const drawerOpen = drawer.open
+  const closeDrawer = () => setDrawer({ open: false, pathname })
 
   useEffect(() => {
     if (!drawerOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpenedAt(null)
+      if (e.key === 'Escape') setDrawer((d) => ({ ...d, open: false }))
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
@@ -33,7 +34,7 @@ export default function AppShell() {
           onClick={closeDrawer}
         />
       )}
-      <Sidebar role={role} open={drawerOpen} />
+      <Sidebar role={role} open={drawerOpen} onNavigate={closeDrawer} />
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-50 flex h-14 items-center gap-3 border-b border-[#e2e8f0] bg-surface-container-lowest px-4">
           {role && (
@@ -42,7 +43,7 @@ export default function AppShell() {
               aria-label={t('shell.menu')}
               aria-expanded={drawerOpen}
               aria-controls="app-sidebar"
-              onClick={() => setOpenedAt(drawerOpen ? null : pathname)}
+              onClick={() => setDrawer({ open: !drawerOpen, pathname })}
               className="rounded p-1 text-primary-container hover:bg-surface-container-low md:hidden"
             >
               <span className="material-symbols-outlined" aria-hidden="true">

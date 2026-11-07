@@ -1,7 +1,11 @@
 import { useId, type ReactNode } from 'react'
 
+const CONTROL_BASE =
+  'h-10 w-full rounded border bg-surface-container-lowest px-3 text-sm text-primary-container outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/10'
+
 interface ControlProps {
   id: string
+  className: string
   'aria-invalid': boolean
   'aria-describedby'?: string
 }
@@ -17,6 +21,7 @@ export default function FormField({ label, error, children }: Props) {
   const errorId = `${id}-error`
   const control: ControlProps = {
     id,
+    className: `${CONTROL_BASE} ${error ? 'border-error' : 'border-[#cbd5e1]'}`,
     'aria-invalid': Boolean(error),
     ...(error ? { 'aria-describedby': errorId } : {}),
   }
