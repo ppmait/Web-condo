@@ -38,5 +38,15 @@
     "title": "Page not found",
     "body": "The link may be wrong or the page has moved.",
     "back": "Back to home"
+  },
+  "auth": {
+    "errors": {
+      "username": "Username must be a-z, 0-9 or _ and 4–20 characters long",
+      "password": "Password must be at least 8 characters",
+      "confirmPassword": "Passwords do not match",
+      "fullName": "Please enter your full name",
+      "email": "Invalid email address",
+      "phone": "Phone must be 10 digits starting with 0"
+    }
   }
 }
