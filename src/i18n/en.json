@@ -41,13 +41,35 @@
   },
   "auth": {
     "loading": "Loading…",
+    "login": { "title": "Sign in", "submit": "Sign in" },
+    "register": { "title": "Tenant registration", "submit": "Register" },
+    "fields": {
+      "username": "Username",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "fullName": "Full name",
+      "email": "Email",
+      "phone": "Phone"
+    },
+    "links": {
+      "toRegister": "No account yet? Register",
+      "toLogin": "Already have an account? Sign in"
+    },
+    "loginFailed": "Invalid username or password",
+    "demo": {
+      "title": "Demo accounts",
+      "hint": "Tap to fill in (demo password: {{password}})"
+    },
     "errors": {
       "username": "Username must be a-z, 0-9 or _ and 4–20 characters long",
       "password": "Password must be at least 8 characters",
       "confirmPassword": "Passwords do not match",
       "fullName": "Please enter your full name",
       "email": "Invalid email address",
-      "phone": "Phone must be 10 digits starting with 0"
+      "phone": "Phone must be 10 digits starting with 0",
+      "required": "Please fill in this field",
+      "usernameTaken": "This username is already taken",
+      "generic": "Something went wrong. Please try again."
     }
   }
 }
