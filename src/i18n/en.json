@@ -1,6 +1,8 @@
 {
   "common": {
-    "appName": "Condo Management"
+    "appName": "Condo Management",
+    "noData": "No data",
+    "close": "Close"
   },
   "status": {
     "settled": "Settled",
