@@ -71,5 +71,31 @@
       "usernameTaken": "This username is already taken",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "property": {
+    "errors": {
+      "code": "Unit code must look like A-1204 (one letter, a dash, 3–4 digits)",
+      "codeTaken": "This unit code is already in use",
+      "codeLocked": "A unit that has leases cannot change its code or use",
+      "type": "Please choose a unit type",
+      "ownership": "Please choose how the unit is used",
+      "floor": "Floor must be a whole number from 1 to 99",
+      "area": "Area must be above 0 and at most 999 sqm",
+      "owner": "Please enter the owner's name",
+      "rent": "Invalid rent amount (whole baht)",
+      "tenantName": "Please enter the tenant's name",
+      "tenantPhone": "Phone must be 10 digits starting with 0",
+      "dates": "Invalid date, or the end date is not after the start date",
+      "leaseOverlap": "This period overlaps another lease of the unit",
+      "deposit": "Deposit must be a whole number of baht, not negative",
+      "unitRequired": "Please choose a unit",
+      "unitNotRentable": "This unit cannot be rented out (owner-occupied or closed)",
+      "inspectionDate": "Inspection date does not fit the lease or the other inspection",
+      "inspector": "Please enter the inspector's name",
+      "itemNote": "Please add a note for every item that is not OK",
+      "meter": "Meter reading must be a non-negative number",
+      "inspectionExists": "This lease already has this type of inspection",
+      "leaseRequired": "Please choose a lease"
+    }
   }
 }
