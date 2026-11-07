@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next'
-import { Link, useLocation } from 'react-router'
-import { roleFromPath, roleHome } from '../app/roles'
+import { Link } from 'react-router'
+import { roleHome } from '../app/roles'
+import { useAuth } from '../auth/useAuth'
 
 export default function NotFoundPage() {
   const { t } = useTranslation()
-  const { pathname } = useLocation()
-  const home = roleHome(roleFromPath(pathname) ?? 'tenant')
+  const { user } = useAuth()
+  const home = roleHome(user?.role ?? 'tenant')
 
   return (
     <section>

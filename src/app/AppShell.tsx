@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router'
+import { useAuth } from '../auth/useAuth'
 import LanguageToggle from '../components/LanguageToggle'
-import RoleSwitcher from './RoleSwitcher'
 import Sidebar from './Sidebar'
-import { roleFromPath } from './roles'
 
 export default function AppShell() {
   const { t } = useTranslation()
   const { pathname } = useLocation()
-  const role = roleFromPath(pathname)
+  const { user } = useAuth()
+  const role = user?.role ?? null
   // any route change closes the drawer (adjusting state during render, not in an effect)
   const [drawer, setDrawer] = useState({ open: false, pathname })
   if (drawer.pathname !== pathname) setDrawer({ open: false, pathname })
@@ -54,8 +54,7 @@ export default function AppShell() {
           <span className="min-w-0 flex-1 truncate font-semibold text-primary-container">
             {t('common.appName')}
           </span>
-          <div className="flex shrink-0 items-center gap-2">
-            <RoleSwitcher role={role} />
+          <div data-testid="header-actions" className="flex shrink-0 items-center gap-2">
             <LanguageToggle />
           </div>
         </header>

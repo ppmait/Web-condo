@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
+import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router'
 import '../i18n'
 import { AppRoutes } from '../app/router'
@@ -29,16 +30,18 @@ export function makeFakeApi(initial: Role | null = null): AuthApi {
 }
 
 /** Renders the whole route tree at `path`; resolves once the session has been loaded. */
-export async function renderApp(path: string, opts: { as?: Role | null } = {}) {
+export async function renderApp(path: string, opts: { as?: Role | null; extra?: ReactNode } = {}) {
   const api = makeFakeApi(opts.as ?? null)
   const result = render(
     <AuthProvider api={api}>
       <MemoryRouter initialEntries={[path]}>
         <AppRoutes />
+        {opts.extra}
         <ReadyProbe />
       </MemoryRouter>
     </AuthProvider>,
   )
   await screen.findByTestId('auth-ready')
+  await act(async () => {}) // let <Navigate> redirects (effects) settle before the test looks at the page
   return { ...result, api }
 }

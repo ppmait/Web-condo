@@ -31,7 +31,6 @@
   "shell": {
     "menu": "Menu",
     "nav": "Main menu",
-    "role": "Role",
     "placeholder": "This page is under construction"
   },
   "notFound": {
