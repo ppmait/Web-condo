@@ -220,6 +220,85 @@ describe('leases', () => {
   })
 })
 
+describe('editing a lease that has history', () => {
+  const editInput = (l: { id: string; cancelledAt?: string; cancelReason?: string } & LeaseInput, over: Partial<LeaseInput> = {}): LeaseInput => {
+    const { id: _id, cancelledAt: _c, cancelReason: _r, ...rest } = l
+    return { ...rest, ...over }
+  }
+
+  it('rejects a start date after the recorded move-in and changes nothing', async () => {
+    const api = make()
+    const l = leaseOf(await api.load(), 'A-1204') // has a move-in a day after it starts
+    const e = await failure(api.updateLease(l.id, editInput(l, { startDate: addDays(l.startDate, 5) })))
+    expect(e?.code).toBe('invalid_input')
+    expect(e?.fieldErrors?.startDate).toBe('property.errors.leaseInspectionDates')
+    expect(leaseOf(await api.load(), 'A-1204').startDate).toBe(l.startDate)
+  })
+
+  it('rejects moving a lease with inspections to another unit', async () => {
+    const api = make()
+    const data = await api.load()
+    const l = leaseOf(data, 'A-1204')
+    const e = await failure(api.updateLease(l.id, editInput(l, { unitId: unitByCode(data, 'A-0501').id })))
+    expect(e?.fieldErrors?.unitId).toBe('property.errors.unitLocked')
+  })
+
+  it('rejects an end date before today, which would lock the lease for good, and keeps the lease editable', async () => {
+    const api = make()
+    const l = leaseOf(await api.load(), 'A-0502')
+    const e = await failure(api.updateLease(l.id, editInput(l, { endDate: addDays(TODAY, -1) })))
+    expect(e?.fieldErrors?.endDate).toBe('property.errors.leaseEndInPast')
+    const again = await api.updateLease(l.id, editInput(l, { monthlyRent: l.monthlyRent + 1 }))
+    expect(again.monthlyRent).toBe(l.monthlyRent + 1)
+  })
+})
+
+describe('two instances on the same storage (two browser tabs)', () => {
+  it('re-reads the stored data before validating, so a stale tab cannot create an overlapping lease', async () => {
+    const storage = new MemoryStorage()
+    const a = make(storage)
+    const b = make(storage)
+    const unit = unitByCode(await a.load(), 'A-0501')
+    await b.load() // tab B now holds a copy of the data from before A's change
+    await a.createLease(newLease(unit.id, { startDate: '2030-01-01', endDate: '2030-12-31' }))
+    const e = await failure(b.createLease(newLease(unit.id, { startDate: '2030-06-01', endDate: '2031-05-31' })))
+    expect(e?.fieldErrors?.startDate).toBe('property.errors.leaseOverlap')
+  })
+
+  it('keeps what the other tab saved when this tab saves something else', async () => {
+    const storage = new MemoryStorage()
+    const a = make(storage)
+    const b = make(storage)
+    await a.load()
+    await b.load()
+    const unit = unitByCode(await a.load(), 'A-0501')
+    await a.createLease(newLease(unit.id, { startDate: '2030-01-01', endDate: '2030-12-31' }))
+    await b.createUnit(newUnit({ code: 'D-0404' }))
+    const after = await make(storage).load()
+    expect(after.leases).toHaveLength(10)
+    expect(after.units).toHaveLength(25)
+  })
+
+  it('shows a change made by another instance on the next load', async () => {
+    const storage = new MemoryStorage()
+    const a = make(storage)
+    const b = make(storage)
+    await b.load()
+    await a.createUnit(newUnit({ code: 'D-0404' }))
+    expect((await b.load()).units.some((u) => u.code === 'D-0404')).toBe(true)
+  })
+
+  it('reseeds on the next call when the stored data was removed', async () => {
+    const storage = new MemoryStorage()
+    const api = make(storage)
+    await api.createUnit(newUnit({ code: 'D-0404' }))
+    storage.removeItem(PROPERTY_KEY)
+    const data = await api.load()
+    expect(data.units).toHaveLength(24)
+    expect(data.units.some((u) => u.code === 'D-0404')).toBe(false)
+  })
+})
+
 describe('inspections', () => {
   it('records a move-in for a lease that has none', async () => {
     const api = make()
@@ -281,7 +360,35 @@ describe('data that cannot be trusted', () => {
     ['duplicate unit codes', (d) => ({ ...d, units: [d.units[0], { ...d.units[1], code: d.units[0].code }, ...d.units.slice(2)] })],
     ['duplicate ids', (d) => ({ ...d, units: [d.units[0], { ...d.units[1], id: d.units[0].id }, ...d.units.slice(2)] })],
     ['an impossible lease date', (d) => ({ ...d, leases: [{ ...d.leases[0], startDate: '2026-02-30' }, ...d.leases.slice(1)] })],
-    ['an inspection with fewer than 8 items', (d) => ({ ...d, inspections: [{ ...d.inspections[0], items: d.inspections[0].items.slice(1) }, ...d.inspections.slice(1)] })],
+    ['a lease that ends before it starts', (d) => ({ ...d, leases: [{ ...d.leases[0], endDate: addDays(d.leases[0].startDate, -1) }, ...d.leases.slice(1)] })],
+    ['a lease with a negative rent', (d) => ({ ...d, leases: [{ ...d.leases[0], monthlyRent: -5 }, ...d.leases.slice(1)] })],
+    ['a unit code that is not in the A-1204 format', (d) => ({ ...d, units: [{ ...d.units[0], code: 'xyz1' }, ...d.units.slice(1)] })],
+    ['a unit whose tower does not match its code', (d) => ({ ...d, units: [{ ...d.units[0], tower: 'Z' }, ...d.units.slice(1)] })],
+    ['a unit with a fractional floor', (d) => ({ ...d, units: [{ ...d.units[0], floor: 0.5 }, ...d.units.slice(1)] })],
+    [
+      'two overlapping leases on one unit',
+      (d) => ({ ...d, leases: [...d.leases, { ...d.leases[0], id: 'l-dup', tenantName: 'ซ้อน' }] }),
+    ],
+    [
+      'two move-in inspections for one lease',
+      (d) => ({ ...d, inspections: [...d.inspections, { ...d.inspections[0], id: 'i-dup' }] }),
+    ],
+    [
+      'a move-in dated before its lease starts',
+      (d) => {
+        const lease = d.leases.find((l) => l.id === d.inspections[0].leaseId)!
+        return { ...d, inspections: [{ ...d.inspections[0], date: addDays(lease.startDate, -1) }, ...d.inspections.slice(1)] }
+      },
+    ],
+    [
+      'a move-out dated before its move-in',
+      (d) => {
+        const moveOut = d.inspections.find((i) => i.type === 'moveOut')!
+        const moveIn = d.inspections.find((i) => i.leaseId === moveOut.leaseId && i.type === 'moveIn')!
+        return { ...d, inspections: d.inspections.map((i) => (i.id === moveOut.id ? { ...i, date: addDays(moveIn.date, -1) } : i)) }
+      },
+    ],
+    ['an inspection with fewer than 8 items',(d) => ({ ...d, inspections: [{ ...d.inspections[0], items: d.inspections[0].items.slice(1) }, ...d.inspections.slice(1)] })],
   ]
 
   it.each(corrupt)('starts again from sample data when storage holds %s', async (_name, build) => {
@@ -289,11 +396,9 @@ describe('data that cannot be trusted', () => {
     const raw = build(valid())
     storage.setItem(PROPERTY_KEY, typeof raw === 'string' ? raw : JSON.stringify(raw))
     const data = await make(storage).load()
-    expect(data.units).toHaveLength(24)
-    expect(data.leases).toHaveLength(9)
-    const stored = JSON.parse(storage.getItem(PROPERTY_KEY) as string)
-    expect(stored.version).toBe(1)
-    expect(stored.units).toHaveLength(24)
+    // exactly the sample data again: untrusted data must not be kept, even partly
+    expect(data).toEqual(makeSeed(TODAY))
+    expect(JSON.parse(storage.getItem(PROPERTY_KEY) as string)).toEqual(makeSeed(TODAY))
   })
 
   it('accepts stored data that is valid', async () => {

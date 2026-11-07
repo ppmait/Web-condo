@@ -42,7 +42,7 @@ function initialState(lease?: Lease): FormState {
 /** Create / edit a lease. Mount it only while it is open, so the form starts fresh every time. */
 export default function LeaseFormModal({ lease, onClose }: Props) {
   const { t } = useTranslation()
-  const { data, createLease, updateLease } = useProperty()
+  const { data, today, createLease, updateLease } = useProperty()
   const [form, setForm] = useState<FormState>(() => initialState(lease))
   const [errors, setErrors] = useState<FieldErrors>({})
   const [generalError, setGeneralError] = useState<'locked' | 'generic' | null>(null)
@@ -90,7 +90,13 @@ export default function LeaseFormModal({ lease, onClose }: Props) {
       monthlyRent: toNumber(form.monthlyRent),
       deposit: toNumber(form.deposit),
     }
-    const found = validateLease(input, { units: data.units, leases: data.leases, selfId: lease?.id })
+    const found = validateLease(input, {
+      units: data.units,
+      leases: data.leases,
+      selfId: lease?.id,
+      inspections: data.inspections,
+      today: lease ? today : undefined, // only an edit must not end the lease in the past
+    })
     setErrors(found)
     if (Object.keys(found).length > 0) {
       setFocusTick((n) => n + 1)

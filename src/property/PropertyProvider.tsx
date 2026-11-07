@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { todayISO } from './dates'
-import { localPropertyApi } from './localPropertyApi'
+import { localPropertyApi, PROPERTY_KEY } from './localPropertyApi'
 import { PropertyContext, type PropertyContextValue } from './PropertyContext'
 import { summarize } from './rules'
 import type { PropertyApi, PropertyData } from './types'
@@ -38,6 +38,15 @@ export function PropertyProvider({ api = localPropertyApi, today = todayISO, chi
       alive = false
     }
   }, [api, today])
+
+  // another browser tab changed the stored data: show it here too
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === PROPERTY_KEY) void reload()
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [reload])
 
   const value = useMemo<PropertyContextValue>(() => {
     // run a change on the api, then reload so every screen sees the new data; errors go to the caller

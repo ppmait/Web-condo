@@ -78,9 +78,14 @@ export function validateUnit(input: UnitInput, units: Unit[], leases: Lease[], s
   return errors
 }
 
+/**
+ * `inspections` and `today` matter when editing (`selfId`): a lease that already has inspections must keep
+ * covering the move-in and stay on its unit, and an edit must not push the end date into the past
+ * (that would make the lease "ended", and an ended lease can no longer be edited or cancelled).
+ */
 export function validateLease(
   input: LeaseInput,
-  ctx: { units: Unit[]; leases: Lease[]; selfId?: string },
+  ctx: { units: Unit[]; leases: Lease[]; selfId?: string; inspections?: Inspection[]; today?: string },
 ): FieldErrors {
   const errors: FieldErrors = {}
   const unit = ctx.units.find((u) => u.id === input.unitId)
@@ -108,6 +113,16 @@ export function validateLease(
         l.startDate <= input.endDate,
     )
     if (clash) errors.startDate = 'property.errors.leaseOverlap'
+  }
+
+  if (ctx.selfId) {
+    const current = ctx.leases.find((l) => l.id === ctx.selfId)
+    const own = (ctx.inspections ?? []).filter((i) => i.leaseId === ctx.selfId)
+    if (current && own.length > 0 && input.unitId !== current.unitId) errors.unitId ??= 'property.errors.unitLocked'
+    const moveIn = own.find((i) => i.type === 'moveIn')
+    if (moveIn && startOk && input.startDate > moveIn.date) errors.startDate ??= 'property.errors.leaseInspectionDates'
+    if (moveIn && endOk && input.endDate < moveIn.date) errors.endDate ??= 'property.errors.leaseInspectionDates'
+    if (ctx.today && endOk && input.endDate < ctx.today) errors.endDate ??= 'property.errors.leaseEndInPast'
   }
   return errors
 }

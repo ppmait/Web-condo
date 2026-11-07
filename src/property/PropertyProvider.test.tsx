@@ -141,6 +141,22 @@ describe('PropertyProvider', () => {
     expect(spy).not.toHaveBeenCalled()
   })
 
+  it('reloads when another tab changes the stored data, and ignores other keys', async () => {
+    const api = makeTestApi()
+    const load = vi.spyOn(api, 'load')
+    mount(api)
+    await screen.findByText('ready')
+    const before = load.mock.calls.length
+    await act(async () => {
+      window.dispatchEvent(new StorageEvent('storage', { key: 'something-else' }))
+    })
+    expect(load.mock.calls.length).toBe(before)
+    await act(async () => {
+      window.dispatchEvent(new StorageEvent('storage', { key: 'condo:property' }))
+    })
+    expect(load.mock.calls.length).toBeGreaterThan(before)
+  })
+
   it('throws a clear error when useProperty is used outside the provider', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     expect(() => render(<Probe />)).toThrow(/PropertyProvider/)

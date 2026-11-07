@@ -264,7 +264,10 @@
       "meter": "Meter reading must be a non-negative number",
       "inspectionExists": "This lease already has this type of inspection",
       "leaseRequired": "Please choose a lease",
-      "inspectionType": "Please choose the inspection type"
+      "inspectionType": "Please choose the inspection type",
+      "unitLocked": "A lease that has inspections cannot move to another unit",
+      "leaseInspectionDates": "The lease must still cover the recorded move-in date",
+      "leaseEndInPast": "The end date cannot be before today: the lease would expire and could no longer be edited. Use \"Cancel lease\" instead."
     }
   }
 }

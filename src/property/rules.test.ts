@@ -282,6 +282,63 @@ describe('validateLease', () => {
   })
 })
 
+describe('validateLease when editing a lease that already has history', () => {
+  const current = lease({ id: 'l1', startDate: '2026-01-01', endDate: '2026-12-31' })
+  const input = (over: Partial<LeaseInput> = {}): LeaseInput => {
+    const { id: _id, cancelledAt: _c, cancelReason: _r, ...rest } = current
+    return { ...rest, ...over }
+  }
+  const withMoveIn = [inspection({ id: 'i1', leaseId: 'l1', type: 'moveIn', date: '2026-01-06' })]
+  const ctx = (over: { inspections?: Inspection[]; today?: string; units?: Unit[] } = {}) => ({
+    units: over.units ?? [unit(), unit({ id: 'u2', code: 'A-1205' })],
+    leases: [current],
+    selfId: 'l1',
+    inspections: over.inspections ?? [],
+    today: over.today ?? TODAY,
+  })
+
+  it('accepts an edit that keeps the move-in inside the lease', () => {
+    expect(validateLease(input({ startDate: '2026-01-05', endDate: '2027-06-30' }), ctx({ inspections: withMoveIn }))).toEqual({})
+    expect(validateLease(input({ startDate: '2026-01-06' }), ctx({ inspections: withMoveIn }))).toEqual({})
+  })
+
+  it('rejects a start date after the recorded move-in', () => {
+    const e = validateLease(input({ startDate: '2026-01-07' }), ctx({ inspections: withMoveIn }))
+    expect(e.startDate).toBe('property.errors.leaseInspectionDates')
+  })
+
+  it('rejects an end date before the recorded move-in', () => {
+    const early = [inspection({ id: 'i1', leaseId: 'l1', type: 'moveIn', date: '2026-11-30' })]
+    const e = validateLease(input({ endDate: '2026-11-29' }), ctx({ inspections: early }))
+    expect(e.endDate).toBe('property.errors.leaseInspectionDates')
+  })
+
+  it('does not care about inspections of other leases', () => {
+    const other = [inspection({ id: 'i9', leaseId: 'other', type: 'moveIn', date: '2026-01-06' })]
+    expect(validateLease(input({ startDate: '2026-03-01' }), ctx({ inspections: other }))).toEqual({})
+  })
+
+  it('does not allow moving a lease that has any inspection to another unit', () => {
+    const moveOutOnly = [inspection({ id: 'i2', leaseId: 'l1', type: 'moveOut', date: '2026-12-31' })]
+    expect(validateLease(input({ unitId: 'u2' }), ctx({ inspections: moveOutOnly })).unitId).toBe('property.errors.unitLocked')
+    expect(validateLease(input({ unitId: 'u2' }), ctx({ inspections: withMoveIn })).unitId).toBe('property.errors.unitLocked')
+  })
+
+  it('allows moving a lease that has no inspection', () => {
+    expect(validateLease(input({ unitId: 'u2' }), ctx())).toEqual({})
+  })
+
+  it('rejects an edit that would make the lease end before today (it would lock the lease for good)', () => {
+    expect(validateLease(input({ endDate: '2026-11-07' }), ctx()).endDate).toBe('property.errors.leaseEndInPast')
+    expect(validateLease(input({ endDate: TODAY }), ctx())).toEqual({})
+  })
+
+  it('still allows creating a lease entirely in the past (spec is silent)', () => {
+    const past = input({ startDate: '2020-01-01', endDate: '2020-12-31' })
+    expect(validateLease(past, { units: [unit()], leases: [], inspections: [], today: TODAY })).toEqual({})
+  })
+})
+
 describe('validateInspection', () => {
   const input = (over: Partial<InspectionInput> = {}): InspectionInput => {
     const { id: _id, ...rest } = inspection()

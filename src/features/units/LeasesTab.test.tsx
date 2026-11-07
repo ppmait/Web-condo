@@ -210,6 +210,45 @@ describe('LeasesTab edit', () => {
     expect(within(rowOf('A-0502')).getByText('฿13,000')).toBeInTheDocument()
   })
 
+  it('does not let the start date move after the recorded move-in', async () => {
+    const api = makeTestApi()
+    const update = vi.spyOn(api, 'updateLease')
+    await renderTab(api)
+    await userEvent.click(screen.getByRole('button', { name: 'แก้ไขสัญญา A-1204' }))
+    const dialog = screen.getByRole('dialog', { name: 'แก้ไขสัญญาเช่า' })
+    const start = makeSeed(TEST_TODAY).leases.find((l) => l.id === 'l-1')!.startDate
+    await userEvent.clear(within(dialog).getByLabelText('วันเริ่มสัญญา'))
+    await userEvent.type(within(dialog).getByLabelText('วันเริ่มสัญญา'), addDays(start, 5))
+    await userEvent.click(within(dialog).getByRole('button', { name: 'บันทึก' }))
+    expect(within(dialog).getByText(/สัญญาต้องครอบคลุมวันตรวจเข้า/)).toBeInTheDocument()
+    expect(update).not.toHaveBeenCalled()
+  })
+
+  it('does not let a lease with inspections move to another unit', async () => {
+    const api = makeTestApi()
+    const update = vi.spyOn(api, 'updateLease')
+    await renderTab(api)
+    await userEvent.click(screen.getByRole('button', { name: 'แก้ไขสัญญา A-1204' }))
+    const dialog = screen.getByRole('dialog', { name: 'แก้ไขสัญญาเช่า' })
+    await userEvent.selectOptions(within(dialog).getByLabelText('ห้อง'), 'A-0501')
+    await userEvent.click(within(dialog).getByRole('button', { name: 'บันทึก' }))
+    expect(within(dialog).getByText(/เปลี่ยนห้องไม่ได้/)).toBeInTheDocument()
+    expect(update).not.toHaveBeenCalled()
+  })
+
+  it('does not let an edit end the lease before today, and says to cancel it instead', async () => {
+    const api = makeTestApi()
+    const update = vi.spyOn(api, 'updateLease')
+    await renderTab(api)
+    await userEvent.click(screen.getByRole('button', { name: 'แก้ไขสัญญา A-0502' }))
+    const dialog = screen.getByRole('dialog', { name: 'แก้ไขสัญญาเช่า' })
+    await userEvent.clear(within(dialog).getByLabelText('วันสิ้นสุดสัญญา'))
+    await userEvent.type(within(dialog).getByLabelText('วันสิ้นสุดสัญญา'), addDays(TEST_TODAY, -1))
+    await userEvent.click(within(dialog).getByRole('button', { name: 'บันทึก' }))
+    expect(within(dialog).getByText(/ใช้ "ยกเลิกสัญญา" แทน/)).toBeInTheDocument()
+    expect(update).not.toHaveBeenCalled()
+  })
+
   it.each(['A-0802', 'B-0802'])('disables edit and cancel for the ended or cancelled lease of %s', async (code) => {
     await renderTab()
     expect(screen.getByRole('button', { name: `แก้ไขสัญญา ${code}` })).toBeDisabled()
