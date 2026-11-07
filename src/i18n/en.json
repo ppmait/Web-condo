@@ -109,7 +109,46 @@
       "ownerName": "Owner name",
       "ownership": "Use",
       "listRent": "List rent (baht)",
-      "closed": "Closed for renovation"
+      "closed": "Closed for renovation",
+      "unitId": "Unit",
+      "tenantName": "Tenant name",
+      "tenantPhone": "Tenant phone",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "monthlyRent": "Monthly rent (baht)",
+      "deposit": "Deposit (baht)"
+    },
+    "leaseStatus": {
+      "active": "Active",
+      "upcoming": "Upcoming",
+      "ended": "Ended",
+      "cancelled": "Cancelled",
+      "expiring": "Expiring soon"
+    },
+    "leases": {
+      "add": "New lease",
+      "addTitle": "New lease",
+      "editTitle": "Edit lease",
+      "save": "Save",
+      "chooseUnit": "— Choose a unit —",
+      "editLabel": "Edit lease {{unit}}",
+      "cancelLabel": "Cancel lease {{unit}}",
+      "inspectLabel": "Record inspection {{unit}}",
+      "lockedHint": "A cancelled or expired lease cannot be edited or cancelled",
+      "inspectionsDone": "Move-in and move-out inspections are both recorded",
+      "cancelTitle": "Cancel lease",
+      "cancelConfirm": "Cancel the lease of unit {{unit}}? This cannot be undone.",
+      "cancelButton": "Confirm cancellation",
+      "keepButton": "Keep lease",
+      "reasonLabel": "Reason (optional)",
+      "columns": {
+        "unit": "Unit",
+        "tenant": "Tenant",
+        "period": "Period",
+        "rent": "Rent / month",
+        "status": "Status",
+        "actions": "Actions"
+      }
     },
     "unitStatus": {
       "rented": "Rented",

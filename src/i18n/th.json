@@ -109,7 +109,46 @@
       "ownerName": "ชื่อเจ้าของ",
       "ownership": "การใช้งาน",
       "listRent": "ค่าเช่าตั้งต้น (บาท)",
-      "closed": "ปิดปรับปรุง"
+      "closed": "ปิดปรับปรุง",
+      "unitId": "ห้อง",
+      "tenantName": "ชื่อผู้เช่า",
+      "tenantPhone": "เบอร์โทรผู้เช่า",
+      "startDate": "วันเริ่มสัญญา",
+      "endDate": "วันสิ้นสุดสัญญา",
+      "monthlyRent": "ค่าเช่าต่อเดือน (บาท)",
+      "deposit": "เงินมัดจำ (บาท)"
+    },
+    "leaseStatus": {
+      "active": "ใช้งาน",
+      "upcoming": "ยังไม่เริ่ม",
+      "ended": "หมดอายุ",
+      "cancelled": "ยกเลิก",
+      "expiring": "ใกล้หมดอายุ"
+    },
+    "leases": {
+      "add": "สร้างสัญญาเช่า",
+      "addTitle": "สร้างสัญญาเช่า",
+      "editTitle": "แก้ไขสัญญาเช่า",
+      "save": "บันทึก",
+      "chooseUnit": "— เลือกห้อง —",
+      "editLabel": "แก้ไขสัญญา {{unit}}",
+      "cancelLabel": "ยกเลิกสัญญา {{unit}}",
+      "inspectLabel": "บันทึกตรวจ {{unit}}",
+      "lockedHint": "สัญญาที่ยกเลิกหรือหมดอายุแล้วแก้ไขหรือยกเลิกไม่ได้",
+      "inspectionsDone": "บันทึกตรวจเข้าและตรวจออกครบแล้ว",
+      "cancelTitle": "ยกเลิกสัญญาเช่า",
+      "cancelConfirm": "ต้องการยกเลิกสัญญาของห้อง {{unit}} ใช่ไหม ยกเลิกแล้วแก้ไขไม่ได้",
+      "cancelButton": "ยืนยันยกเลิกสัญญา",
+      "keepButton": "ไม่ยกเลิก",
+      "reasonLabel": "เหตุผล (ไม่บังคับ)",
+      "columns": {
+        "unit": "ห้อง",
+        "tenant": "ผู้เช่า",
+        "period": "ช่วงสัญญา",
+        "rent": "ค่าเช่า/เดือน",
+        "status": "สถานะ",
+        "actions": "จัดการ"
+      }
     },
     "unitStatus": {
       "rented": "มีผู้เช่า",
