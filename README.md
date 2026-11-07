@@ -2,7 +2,7 @@
 
 โครงหน้าบ้านของระบบบริหารคอนโด/นิติบุคคล: React + Vite + TypeScript + Tailwind v4
 
-สถานะ: โครงพื้นฐาน + **login/สมัครสมาชิก/สิทธิ์ตาม role แบบจำลอง** ยังไม่มีหลังบ้านจริง และยังไม่มีเนื้อหาของแต่ละโมดูล (หน้าหลังล็อกอินเป็น placeholder)
+สถานะ: โครงพื้นฐาน + **login/สมัครสมาชิก/สิทธิ์ตาม role** + **ห้องชุด/สัญญาเช่า/ตรวจสภาพห้อง** (FR3–10) ทั้งหมดเป็นข้อมูลจำลองในเบราว์เซอร์ ยังไม่มีหลังบ้านจริง หน้าของโมดูลอื่นที่เหลือเป็น placeholder
 
 ## คำสั่ง
 
@@ -20,8 +20,9 @@ npm run lint    # oxlint
 src/
   app/         router, AppShell, Sidebar, UserMenu, roles.ts (เมนูของแต่ละ role)
   auth/        AuthApi (interface), localAuthApi (ตัวจำลอง), AuthProvider/useAuth, guards
-  features/    หน้าของแต่ละโมดูล (ตอนนี้มี auth/ = login+สมัคร, PlaceholderPage, NotFoundPage)
-  components/  Button, StatusBadge, KpiCard, FormField, DataTable, Modal, LanguageToggle
+  property/    ห้อง/สัญญา/ตรวจสภาพ: types, rules (กฎล้วน), seed, localPropertyApi, PropertyProvider/useProperty
+  features/    หน้าของแต่ละโมดูล (auth/ = login+สมัคร, units/ = ห้อง/สัญญา/ตรวจสภาพ, PlaceholderPage, NotFoundPage)
+  components/  Button, StatusBadge, KpiCard, FormField, DataTable, Modal, ConfirmDialog, Pager, LanguageToggle
   i18n/        config + th.json / en.json
   styles/      index.css (Tailwind + design tokens ใน @theme)
 ```
@@ -57,6 +58,17 @@ src/
 ### ในเทส
 
 `renderApp(path, { as: 'tenant' })` จาก `src/test/renderApp.tsx` เรนเดอร์ทั้งแอปที่ path นั้นโดยล็อกอินเป็น role ที่ระบุไว้แล้ว (หรือไม่ล็อกอินถ้าไม่ส่ง `as`)
+
+## ห้องชุด สัญญาเช่า และตรวจสภาพห้อง (FR3–10)
+
+หน้า `/juristic/units` (เฉพาะนิติบุคคล) มี 3 แท็บ: ห้องชุด, สัญญาเช่า, ตรวจสภาพ (`/leases`, `/inspections`)
+
+- **ข้อมูล** อยู่ใน localStorage คีย์เดียว `condo:property` ถ้าว่าง/เสีย/อ้างอิงไม่ตรงกัน จะ seed ข้อมูลตัวอย่างใหม่ (ห้อง 24, สัญญา 9, บันทึกตรวจ 6) จาก `src/property/seed.ts` โดยวันที่ทั้งหมดอิงจาก "วันนี้"
+- **สถานะห้องและสัญญา คำนวณ ไม่เก็บ** (`src/property/rules.ts`): ห้อง = ปิดปรับปรุง > มีผู้เช่า > เจ้าของอยู่เอง > ว่าง; สัญญา = ยกเลิก > หมดอายุ > ยังไม่เริ่ม > ใช้งาน และใช้งานที่เหลือ ≤ 60 วันได้ป้าย "ใกล้หมดอายุ"
+- **กฎสำคัญ:** รหัสห้องไม่ซ้ำ; ลบห้องที่มีสัญญาไม่ได้ (ให้ปิดปรับปรุง); ช่วงสัญญาของห้องเดียวกันห้ามซ้อน (วันสิ้นสุดตรงกับวันเริ่มของอีกสัญญาก็ซ้อน); สัญญาที่ยกเลิก/หมดอายุแก้ไขไม่ได้; ต่อสัญญามีตรวจเข้า/ตรวจออกอย่างละ 1 ครั้ง แก้ได้แต่ลบไม่ได้
+- **ชั้นข้อมูล:** หน้าจอเรียกผ่าน `useProperty()` ซึ่งอ่านจาก `PropertyApi` (`src/property/types.ts`) ถ้ามีหลังบ้านให้เขียน `PropertyApi` ตัวใหม่ แล้วส่งให้ `<PropertyProvider api={...}>` (ใน `UnitsPage`) และลบ `localPropertyApi.ts` กับ `seed.ts`
+- **ในเทส:** `renderProperty(<UnitsTab />)` และ `makeTestApi()` จาก `src/test/renderProperty.tsx` ให้ข้อมูลตัวอย่างสดใหม่ทุกเทสโดยวันนี้คงที่ `2026-11-08`; เทสที่แก้ข้อมูลต้องใช้ตัวนี้ ไม่ใช้ `renderApp` (ตัวหลังใช้ api ตัวเดียวร่วมกันทั้งไฟล์)
+- **ยังไม่ทำ:** ผังชั้น, ประวัติโอนกรรมสิทธิ์, หุ้นเจ้าของร่วม, escrow มัดจำ, พิมพ์/ส่งออกสัญญา, รูปถ่ายประกอบการตรวจ
 
 ## หมายเหตุ
 
