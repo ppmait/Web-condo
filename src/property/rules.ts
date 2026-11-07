@@ -121,7 +121,8 @@ export function validateInspection(
   if (!lease) errors.leaseId = 'property.errors.leaseRequired'
 
   const others = ctx.inspections.filter((i) => i.leaseId === input.leaseId && i.id !== ctx.selfId)
-  if (others.some((i) => i.type === input.type)) errors.type = 'property.errors.inspectionExists'
+  if (input.type !== 'moveIn' && input.type !== 'moveOut') errors.type = 'property.errors.inspectionType'
+  else if (others.some((i) => i.type === input.type)) errors.type = 'property.errors.inspectionExists'
 
   if (!isValidDate(input.date)) errors.date = 'property.errors.inspectionDate'
   else {

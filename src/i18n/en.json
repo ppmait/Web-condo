@@ -99,7 +99,9 @@
       "tower": "Tower",
       "status": "Status",
       "allTowers": "All towers",
-      "allStatuses": "All statuses"
+      "allStatuses": "All statuses",
+      "inspectionType": "Filter by type",
+      "allTypes": "All types"
     },
     "fields": {
       "code": "Unit code",
@@ -116,7 +118,13 @@
       "startDate": "Start date",
       "endDate": "End date",
       "monthlyRent": "Monthly rent (baht)",
-      "deposit": "Deposit (baht)"
+      "deposit": "Deposit (baht)",
+      "leaseId": "Lease",
+      "inspectionType": "Inspection type",
+      "date": "Inspection date",
+      "inspector": "Inspector",
+      "waterMeter": "Water meter reading",
+      "electricMeter": "Electricity meter reading"
     },
     "leaseStatus": {
       "active": "Active",
@@ -149,6 +157,49 @@
         "status": "Status",
         "actions": "Actions"
       }
+    },
+    "inspections": {
+      "record": "Record inspection",
+      "recordTitle": "Record a unit inspection",
+      "editTitle": "Unit inspection",
+      "save": "Save",
+      "openLabel": "View/edit inspection {{unit}} ({{type}})",
+      "noneLeft": "Move-in and move-out inspections are recorded for every lease",
+      "allOk": "All OK",
+      "problems": "{{count}} problem(s)",
+      "conditionLabel": "Condition",
+      "noteLabel": "Note",
+      "generalNote": "General note",
+      "chooseLease": "— Choose a lease —",
+      "chooseType": "— Choose a type —",
+      "columns": {
+        "unit": "Unit",
+        "tenant": "Tenant",
+        "type": "Type",
+        "date": "Date",
+        "inspector": "Inspector",
+        "problems": "Result",
+        "actions": "Actions"
+      }
+    },
+    "inspectionType": {
+      "moveIn": "Move-in",
+      "moveOut": "Move-out"
+    },
+    "checkItems": {
+      "livingRoom": "Living room",
+      "bedroom": "Bedroom",
+      "bathroom": "Bathroom",
+      "kitchen": "Kitchen",
+      "balcony": "Balcony",
+      "airConditioner": "Air conditioner",
+      "appliances": "Appliances",
+      "keyCards": "Keys / key cards"
+    },
+    "condition": {
+      "ok": "OK",
+      "damaged": "Damaged",
+      "missing": "Missing"
     },
     "unitStatus": {
       "rented": "Rented",
@@ -212,7 +263,8 @@
       "itemNote": "Please add a note for every item that is not OK",
       "meter": "Meter reading must be a non-negative number",
       "inspectionExists": "This lease already has this type of inspection",
-      "leaseRequired": "Please choose a lease"
+      "leaseRequired": "Please choose a lease",
+      "inspectionType": "Please choose the inspection type"
     }
   }
 }

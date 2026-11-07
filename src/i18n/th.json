@@ -99,7 +99,9 @@
       "tower": "อาคาร",
       "status": "สถานะ",
       "allTowers": "ทุกอาคาร",
-      "allStatuses": "ทุกสถานะ"
+      "allStatuses": "ทุกสถานะ",
+      "inspectionType": "กรองตามประเภท",
+      "allTypes": "ทุกประเภท"
     },
     "fields": {
       "code": "รหัสห้อง",
@@ -116,7 +118,13 @@
       "startDate": "วันเริ่มสัญญา",
       "endDate": "วันสิ้นสุดสัญญา",
       "monthlyRent": "ค่าเช่าต่อเดือน (บาท)",
-      "deposit": "เงินมัดจำ (บาท)"
+      "deposit": "เงินมัดจำ (บาท)",
+      "leaseId": "สัญญา",
+      "inspectionType": "ประเภทการตรวจ",
+      "date": "วันที่ตรวจ",
+      "inspector": "ผู้ตรวจ",
+      "waterMeter": "เลขมิเตอร์น้ำ",
+      "electricMeter": "เลขมิเตอร์ไฟ"
     },
     "leaseStatus": {
       "active": "ใช้งาน",
@@ -149,6 +157,49 @@
         "status": "สถานะ",
         "actions": "จัดการ"
       }
+    },
+    "inspections": {
+      "record": "บันทึกการตรวจ",
+      "recordTitle": "บันทึกการตรวจสภาพห้อง",
+      "editTitle": "การตรวจสภาพห้อง",
+      "save": "บันทึก",
+      "openLabel": "ดู/แก้ไขการตรวจ {{unit}} ({{type}})",
+      "noneLeft": "บันทึกตรวจเข้าและตรวจออกครบแล้วทุกสัญญา",
+      "allOk": "ปกติ",
+      "problems": "{{count}} จุดไม่ปกติ",
+      "conditionLabel": "สภาพ",
+      "noteLabel": "หมายเหตุ",
+      "generalNote": "หมายเหตุทั่วไป",
+      "chooseLease": "— เลือกสัญญา —",
+      "chooseType": "— เลือกประเภท —",
+      "columns": {
+        "unit": "ห้อง",
+        "tenant": "ผู้เช่า",
+        "type": "ประเภท",
+        "date": "วันที่ตรวจ",
+        "inspector": "ผู้ตรวจ",
+        "problems": "ผลการตรวจ",
+        "actions": "จัดการ"
+      }
+    },
+    "inspectionType": {
+      "moveIn": "ตรวจเข้า",
+      "moveOut": "ตรวจออก"
+    },
+    "checkItems": {
+      "livingRoom": "ห้องนั่งเล่น",
+      "bedroom": "ห้องนอน",
+      "bathroom": "ห้องน้ำ",
+      "kitchen": "ห้องครัว",
+      "balcony": "ระเบียง",
+      "airConditioner": "เครื่องปรับอากาศ",
+      "appliances": "เครื่องใช้ไฟฟ้า",
+      "keyCards": "กุญแจ/คีย์การ์ด"
+    },
+    "condition": {
+      "ok": "ปกติ",
+      "damaged": "ชำรุด",
+      "missing": "สูญหาย/ขาด"
     },
     "unitStatus": {
       "rented": "มีผู้เช่า",
@@ -212,7 +263,8 @@
       "itemNote": "กรุณาระบุหมายเหตุสำหรับรายการที่ไม่ปกติ",
       "meter": "เลขมิเตอร์ต้องเป็นตัวเลขไม่ติดลบ",
       "inspectionExists": "สัญญานี้มีการตรวจประเภทนี้แล้ว",
-      "leaseRequired": "กรุณาเลือกสัญญา"
+      "leaseRequired": "กรุณาเลือกสัญญา",
+      "inspectionType": "กรุณาเลือกประเภทการตรวจ"
     }
   }
 }

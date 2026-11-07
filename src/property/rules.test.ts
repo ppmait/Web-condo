@@ -345,6 +345,11 @@ describe('validateInspection', () => {
     expect(validateInspection(input({ items: noted }), ctx())).toEqual({})
   })
 
+  it('requires a valid inspection type', () => {
+    expect(validateInspection(input({ type: '' as never }), ctx()).type).toBe('property.errors.inspectionType')
+    expect(validateInspection(input({ type: 'other' as never }), ctx()).type).toBe('property.errors.inspectionType')
+  })
+
   it('requires all 8 items', () => {
     const e = validateInspection(input({ items: allOk().slice(1) }), ctx())
     expect(Object.keys(e)).toContain(`item:${CHECK_ITEMS[0]}`)
