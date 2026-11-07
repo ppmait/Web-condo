@@ -9,5 +9,23 @@
     "pending": "Pending",
     "critical": "Critical",
     "inactive": "Inactive"
+  },
+  "role": {
+    "tenant": "Tenant",
+    "juristic": "Juristic staff",
+    "technician": "Technician"
+  },
+  "nav": {
+    "overview": "Unit overview",
+    "billing": "Billing & payments",
+    "parcels": "My parcels",
+    "maintenance": "Maintenance requests",
+    "facilities": "Book facilities",
+    "announcements": "Announcements",
+    "dashboard": "Dashboard",
+    "units": "Units & leases",
+    "parcelsBookings": "Parcels & bookings",
+    "reports": "Reports",
+    "jobs": "My jobs"
   }
 }
