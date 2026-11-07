@@ -2,7 +2,8 @@
   "common": {
     "appName": "Condo Management",
     "noData": "No data",
-    "close": "Close"
+    "close": "Close",
+    "cancel": "Cancel"
   },
   "status": {
     "settled": "Settled",
@@ -73,6 +74,25 @@
     }
   },
   "property": {
+    "loading": "Loading data…",
+    "loadFailed": "Could not load the data. Please refresh the page.",
+    "summary": {
+      "total": "Total units",
+      "vacant": "Vacant units",
+      "expiring": "Leases expiring (60 days)",
+      "awaitingMoveIn": "Awaiting move-in inspection"
+    },
+    "tabs": {
+      "label": "Units sections",
+      "units": "Units",
+      "leases": "Leases",
+      "inspections": "Inspections"
+    },
+    "pager": {
+      "label": "Page {{page}} of {{count}}",
+      "prev": "Previous",
+      "next": "Next"
+    },
     "errors": {
       "code": "Unit code must look like A-1204 (one letter, a dash, 3–4 digits)",
       "codeTaken": "This unit code is already in use",
