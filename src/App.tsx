@@ -1,3 +1,10 @@
+import { BrowserRouter } from 'react-router'
+import { AppRoutes } from './app/router'
+
 export default function App() {
-  return <main>ระบบบริหารคอนโด</main>
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  )
 }

@@ -27,5 +27,16 @@
     "parcelsBookings": "Parcels & bookings",
     "reports": "Reports",
     "jobs": "My jobs"
+  },
+  "shell": {
+    "menu": "Menu",
+    "nav": "Main menu",
+    "role": "Role",
+    "placeholder": "This page is under construction"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The link may be wrong or the page has moved.",
+    "back": "Back to home"
   }
 }
