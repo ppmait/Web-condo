@@ -40,6 +40,7 @@
     "back": "Back to home"
   },
   "auth": {
+    "loading": "Loading…",
     "errors": {
       "username": "Username must be a-z, 0-9 or _ and 4–20 characters long",
       "password": "Password must be at least 8 characters",
