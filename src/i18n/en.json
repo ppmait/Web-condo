@@ -55,6 +55,7 @@
       "toLogin": "Already have an account? Sign in"
     },
     "loginFailed": "Invalid username or password",
+    "logout": "Sign out",
     "demo": {
       "title": "Demo accounts",
       "hint": "Tap to fill in (demo password: {{password}})"

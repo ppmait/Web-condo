@@ -30,8 +30,11 @@ export function makeFakeApi(initial: Role | null = null): AuthApi {
 }
 
 /** Renders the whole route tree at `path`; resolves once the session has been loaded. */
-export async function renderApp(path: string, opts: { as?: Role | null; extra?: ReactNode } = {}) {
-  const api = makeFakeApi(opts.as ?? null)
+export async function renderApp(
+  path: string,
+  opts: { as?: Role | null; extra?: ReactNode; api?: AuthApi } = {},
+) {
+  const api = opts.api ?? makeFakeApi(opts.as ?? null)
   const result = render(
     <AuthProvider api={api}>
       <MemoryRouter initialEntries={[path]}>

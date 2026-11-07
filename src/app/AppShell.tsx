@@ -4,6 +4,7 @@ import { Outlet, useLocation } from 'react-router'
 import { useAuth } from '../auth/useAuth'
 import LanguageToggle from '../components/LanguageToggle'
 import Sidebar from './Sidebar'
+import UserMenu from './UserMenu'
 
 export default function AppShell() {
   const { t } = useTranslation()
@@ -56,6 +57,7 @@ export default function AppShell() {
           </span>
           <div data-testid="header-actions" className="flex shrink-0 items-center gap-2">
             <LanguageToggle />
+            <UserMenu />
           </div>
         </header>
         <main className="min-w-0 flex-1 p-4 md:p-8">
