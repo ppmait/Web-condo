@@ -79,6 +79,15 @@ describe('RegisterPage', () => {
     expect(screen.getByText('รหัสผ่านไม่ตรงกัน')).toBeInTheDocument()
   })
 
+  it('moves focus to the first invalid field after a failed submit', async () => {
+    renderRegister()
+    await userEvent.click(submit())
+    expect(screen.getByLabelText(LABELS.username)).toHaveFocus()
+    await fill({ username: 'somchai_01', password: 'short', confirmPassword: 'short' })
+    await userEvent.click(submit())
+    expect(screen.getByLabelText(LABELS.password)).toHaveFocus()
+  })
+
   it('clears a field error as soon as that field is edited', async () => {
     renderRegister()
     await userEvent.click(submit())

@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { roleHome } from '../../app/roles'
@@ -43,8 +43,15 @@ export default function RegisterPage() {
   const [generalError, setGeneralError] = useState(false)
   const [pending, setPending] = useState(false)
   const inFlight = useRef(false)
+  const formRef = useRef<HTMLFormElement>(null)
+  const [focusTick, setFocusTick] = useState(0)
 
-  const change = (name: keyof RegisterForm, value: string) => {
+  // after a failed submit, move focus to the first invalid field so screen-reader users hear the error
+  useEffect(() => {
+    if (focusTick > 0) formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+  }, [focusTick])
+
+  const change =(name: keyof RegisterForm, value: string) => {
     setForm((f) => ({ ...f, [name]: value }))
     setErrors((e) => {
       if (!e[name]) return e
@@ -60,7 +67,10 @@ export default function RegisterPage() {
     setGeneralError(false)
     const found = validateRegister(form)
     setErrors(found)
-    if (Object.keys(found).length > 0) return
+    if (Object.keys(found).length > 0) {
+      setFocusTick((n) => n + 1)
+      return
+    }
 
     inFlight.current = true
     setPending(true)
@@ -70,6 +80,7 @@ export default function RegisterPage() {
     } catch (err) {
       if (err instanceof AuthError && err.code === 'username_taken') {
         setErrors({ username: 'auth.errors.usernameTaken' })
+        setFocusTick((n) => n + 1)
       } else if (err instanceof AuthError && err.code === 'invalid_input') {
         setErrors(validateRegister(form))
       } else {
@@ -83,7 +94,7 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout title={t('auth.register.title')}>
-      <form onSubmit={submit} noValidate className="flex flex-col gap-4">
+      <form ref={formRef} onSubmit={submit} noValidate className="flex flex-col gap-4">
         {FIELDS.map((f) => (
           <FormField
             key={f.name}

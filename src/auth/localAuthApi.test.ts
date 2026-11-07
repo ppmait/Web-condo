@@ -181,6 +181,19 @@ describe('corrupt stored users', () => {
   )
 })
 
+describe('hashing that fails once', () => {
+  it('does not cache the failure: the next call seeds and works', async () => {
+    let calls = 0
+    const flaky = async (s: string) => {
+      if (calls++ === 0) throw new TypeError('crypto.subtle is unavailable')
+      return `h:${s}`
+    }
+    const api = createLocalAuthApi({ storage: new MemoryStorage(), hash: flaky })
+    await expect(api.login('tenant01', DEMO_PASSWORD)).rejects.toThrow(TypeError)
+    expect((await api.login('tenant01', DEMO_PASSWORD)).role).toBe('tenant')
+  })
+})
+
 describe('storage that fails', () => {
   it('works in memory when reading throws', async () => {
     const api = make(new UnreadableStorage())

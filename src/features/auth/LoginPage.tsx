@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { roleHome } from '../../app/roles'
@@ -20,8 +20,16 @@ export default function LoginPage() {
     password: false,
   })
   const [failed, setFailed] = useState(false)
+  const [generalError, setGeneralError] = useState(false)
   const [pending, setPending] = useState(false)
   const inFlight = useRef(false)
+  const formRef = useRef<HTMLFormElement>(null)
+  const [focusTick, setFocusTick] = useState(0)
+
+  // after a failed submit, move focus to the first invalid field so screen-reader users hear the error
+  useEffect(() => {
+    if (focusTick > 0) formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+  }, [focusTick])
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -29,7 +37,11 @@ export default function LoginPage() {
     const missing = { username: username.trim() === '', password: password === '' }
     setRequired(missing)
     setFailed(false)
-    if (missing.username || missing.password) return
+    setGeneralError(false)
+    if (missing.username || missing.password) {
+      setFocusTick((n) => n + 1)
+      return
+    }
 
     inFlight.current = true
     setPending(true)
@@ -37,9 +49,12 @@ export default function LoginPage() {
       const user = await login(username, password)
       navigate(roleHome(user.role), { replace: true })
     } catch (err) {
-      if (!(err instanceof AuthError)) throw err
-      setFailed(true)
-      setPassword('')
+      if (err instanceof AuthError) {
+        setFailed(true)
+        setPassword('')
+      } else {
+        setGeneralError(true)
+      }
     } finally {
       inFlight.current = false
       setPending(false)
@@ -48,7 +63,7 @@ export default function LoginPage() {
 
   return (
     <AuthLayout title={t('auth.login.title')}>
-      <form onSubmit={submit} noValidate className="flex flex-col gap-4">
+      <form ref={formRef} onSubmit={submit} noValidate className="flex flex-col gap-4">
         <FormField label={t('auth.fields.username')} error={required.username ? t('auth.errors.required') : undefined}>
           {(a) => (
             <input
@@ -71,9 +86,9 @@ export default function LoginPage() {
             />
           )}
         </FormField>
-        {failed && (
+        {(failed || generalError) && (
           <p role="alert" className="text-sm text-error">
-            {t('auth.loginFailed')}
+            {failed ? t('auth.loginFailed') : t('auth.errors.generic')}
           </p>
         )}
         <Button type="submit" disabled={pending}>

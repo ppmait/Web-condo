@@ -94,7 +94,10 @@ export function createLocalAuthApi(opts: Options = {}): AuthApi {
       }
       write(USERS_KEY, JSON.stringify(seeded))
       return seeded
-    })()
+    })().catch((error: unknown) => {
+      usersPromise = null // do not cache a failure (e.g. hashing unavailable): the next call retries
+      throw error
+    })
     return usersPromise
   }
 

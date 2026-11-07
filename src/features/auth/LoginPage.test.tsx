@@ -60,6 +60,26 @@ describe('LoginPage', () => {
     expect(fields().username).toHaveValue('tenant01')
   })
 
+  it('shows a generic error when login fails for another reason, e.g. hashing is unavailable', async () => {
+    const api = makeFakeApi()
+    vi.spyOn(api, 'login').mockRejectedValue(new TypeError('crypto.subtle is unavailable'))
+    renderLogin(api)
+    await userEvent.type(fields().username, 'tenant01')
+    await userEvent.type(fields().password, DEMO_PASSWORD)
+    await userEvent.click(screen.getByRole('button', { name: 'เข้าสู่ระบบ' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง')
+    expect(screen.getByRole('button', { name: 'เข้าสู่ระบบ' })).toBeEnabled()
+  })
+
+  it('moves focus to the first empty field after an empty submit', async () => {
+    renderLogin()
+    await userEvent.click(screen.getByRole('button', { name: 'เข้าสู่ระบบ' }))
+    expect(fields().username).toHaveFocus()
+    await userEvent.type(fields().username, 'tenant01')
+    await userEvent.click(screen.getByRole('button', { name: 'เข้าสู่ระบบ' }))
+    expect(fields().password).toHaveFocus()
+  })
+
   it('does not call login for empty fields and shows errors under them', async () => {
     const api = makeFakeApi()
     const login = vi.spyOn(api, 'login')
