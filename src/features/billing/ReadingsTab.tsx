@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import Button from '../../components/Button'
 import StatusBadge from '../../components/StatusBadge'
 import { formatBaht } from '../../lib/format'
-import { billable, computeLines, isLatestReading, previousReading, validateReading, type FieldErrors } from '../../billing/rules'
+import { billable, computeLines, nextReading, previousReading, validateReading, type FieldErrors } from '../../billing/rules'
 import { BillingError, type MeterReading, type MeterReadingInput, type Period } from '../../billing/types'
 import { useBilling } from '../../billing/useBilling'
 import { useProperty } from '../../property/useProperty'
@@ -46,7 +46,9 @@ function ReadingsTable({ period }: { period: Period }) {
     const reading = data.readings.find((r) => r.unitId === unit.id && r.period === period)
     const invoice = data.invoices.find((i) => i.unitId === unit.id && i.period === period)
     const earlier = previousReading(data.readings, unit.id, period)
-    const lockedKey = invoice ? 'billing.errors.readingLocked' : !isLatestReading(data.readings, unit.id, period) ? 'billing.errors.readingChained' : null
+    const later = nextReading(data.readings, unit.id, period)
+    const laterInvoiced = later !== undefined && data.invoices.some((i) => i.unitId === unit.id && i.period === later.period)
+    const lockedKey = invoice ? 'billing.errors.readingLocked' : laterInvoiced ? 'billing.errors.readingChained' : null
     return { unit, lease, reading, invoice, earlier, lockedKey }
   })
 
@@ -240,7 +242,14 @@ function ReadingsTable({ period }: { period: Period }) {
                     <td className="px-3 py-2 text-right tabular-nums">{formatBaht(computeLines({ id: '', unitId: row.unit.id, period, waterPrev: 0, waterCurr: 0, electricPrev: 0, electricCurr: 0 }, row.unit.areaSqm, data.rates).common.amount)}</td>
                     <td className="px-3 py-2">
                       <StatusBadge status={BADGE[state]} label={t(`billing.readings.state.${state}`)} />
-                      {rowMessage && <p className="mt-1 max-w-48 text-xs text-on-surface-variant">{t(rowMessage)}</p>}
+                      {rowMessage &&
+                        (row.lockedKey ? (
+                          <p className="mt-1 max-w-48 text-xs text-on-surface-variant">{t(rowMessage)}</p>
+                        ) : (
+                          <p role="alert" className="mt-1 max-w-48 text-xs text-error">
+                            {t(rowMessage)}
+                          </p>
+                        ))}
                       {failed[row.unit.id] && (
                         <p role="alert" className="mt-1 max-w-48 text-xs text-error">
                           {t('billing.readings.failed')}

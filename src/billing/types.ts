@@ -87,6 +87,8 @@ export interface AppNotification {
   recipientPhone: string
   createdAt: string
   read: boolean
+  /** for slipRejected: the reason given at the time */
+  reason?: string
 }
 
 export interface BillingData {

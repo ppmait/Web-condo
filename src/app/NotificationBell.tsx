@@ -30,7 +30,8 @@ export default function NotificationBell() {
     const number = invoice?.number ?? ''
     const text = t(`billing.notifications.${n.type}`, { number })
     if (n.type !== 'slipRejected') return { text }
-    const reason = invoice?.slips.filter((s) => s.status === 'rejected').at(-1)?.rejectReason
+    // older notifications (stored before the reason was kept on them) fall back to the invoice's latest rejection
+    const reason = n.reason ?? invoice?.slips.filter((s) => s.status === 'rejected').at(-1)?.rejectReason
     return { text, reason }
   }
 

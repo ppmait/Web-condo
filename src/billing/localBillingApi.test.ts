@@ -122,7 +122,7 @@ describe('meter readings', () => {
     expect(ok.waterPrev).toBe(last.waterCurr)
   })
 
-  it('refuses to change a reading of a period that already has an invoice, or one that has a later reading', async () => {
+  it('refuses to change a reading of a period that already has an invoice, or whose next period is invoiced', async () => {
     const api = make()
     const data = await api.load()
     const invoiced = data.invoices.find((i) => i.period === PREVIOUS)!
@@ -132,6 +132,24 @@ describe('meter readings', () => {
     const older = data.readings.find((x) => x.unitId === invoiced.unitId && x.period === addMonths(PREVIOUS, -1))!
     const chained = await failure(api.saveReading({ unitId: older.unitId, period: older.period, waterPrev: older.waterPrev, waterCurr: older.waterCurr, electricPrev: older.electricPrev, electricCurr: older.electricCurr }))
     expect(chained?.fieldErrors?.reading).toMatch(/readingLocked|readingChained/)
+  })
+
+  it('lets an older reading that is not invoiced be corrected, and moves the next period\'s "before" value with it', async () => {
+    const api = make()
+    const data = await api.load()
+    const cur = data.readings.find((x) => x.period === CURRENT && billable(propertyData(), addMonths(CURRENT, 1)).some((b) => b.unit.id === x.unitId))!
+    const next = addMonths(CURRENT, 1)
+    const future = await api.saveReading({ unitId: cur.unitId, period: next, waterPrev: cur.waterCurr, waterCurr: cur.waterCurr + 20, electricPrev: cur.electricCurr, electricCurr: cur.electricCurr + 200 })
+    const fixed = await api.saveReading({ unitId: cur.unitId, period: CURRENT, waterPrev: cur.waterPrev, waterCurr: cur.waterCurr + 3, electricPrev: cur.electricPrev, electricCurr: cur.electricCurr + 30 })
+    expect(fixed.waterCurr).toBe(cur.waterCurr + 3)
+    const after = (await api.load()).readings.find((x) => x.id === future.id)!
+    expect(after.waterPrev).toBe(cur.waterCurr + 3)
+    expect(after.electricPrev).toBe(cur.electricCurr + 30)
+    expect(after.waterCurr).toBe(cur.waterCurr + 20)
+    const tooHigh = await failure(api.saveReading({ unitId: cur.unitId, period: CURRENT, waterPrev: cur.waterPrev, waterCurr: cur.waterCurr + 21, electricPrev: cur.electricPrev, electricCurr: cur.electricCurr }))
+    expect(tooHigh?.fieldErrors?.waterCurr).toBe('billing.errors.readingNextOrder')
+    // the stored data stayed consistent: it is still trusted when read again
+    expect((await api.load()).readings.find((x) => x.id === future.id)!.waterPrev).toBe(cur.waterCurr + 3)
   })
 
   it('refuses a reading for a unit that is not billed in that period', async () => {
@@ -174,6 +192,7 @@ describe('issuing invoices', () => {
   it('does not create invoices twice, however often it is called', async () => {
     const api = make()
     const first = await api.issueInvoices(CURRENT)
+    expect(first.issued.length).toBeGreaterThan(0)
     const second = await api.issueInvoices(CURRENT)
     expect(second.issued).toEqual([])
     expect(second.skipped.filter((s) => s.reason === 'exists')).toHaveLength(first.issued.length)
@@ -293,7 +312,7 @@ describe('slips', () => {
     expect(['unpaid', 'overdue']).toContain(invoiceStatus(updated, TODAY))
     const after = await api.load()
     const added = after.notifications.slice(data.notifications.length)
-    expect(added).toEqual([expect.objectContaining({ type: 'slipRejected', invoiceId: pending.id, recipientPhone: pending.tenantPhone, read: false })])
+    expect(added).toEqual([expect.objectContaining({ type: 'slipRejected', invoiceId: pending.id, recipientPhone: pending.tenantPhone, read: false, reason: 'ยอดไม่ตรง' })])
   })
 
   it('does not reject without a reason', async () => {

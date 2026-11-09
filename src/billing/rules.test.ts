@@ -7,7 +7,7 @@ import {
   DEFAULT_RATES,
   invoiceNumber,
   invoiceStatus,
-  isLatestReading,
+  nextReading,
   needsReceipt,
   previousReading,
   receiptNumber,
@@ -101,6 +101,7 @@ describe('roundBaht', () => {
     [2.51, 3],
     [1137.5, 1138],
     [4648, 4648],
+    [2.4999999999999996, 3], // binary floating point noise just below a half still rounds up
   ])('rounds %s to %s (half up)', (input, expected) => {
     expect(roundBaht(input)).toBe(expected)
   })
@@ -126,6 +127,11 @@ describe('computeLines', () => {
     const lines = computeLines(reading(), 45.5, { ...RATES, common: 25 }) // 45.5 × 25 = 1137.5
     expect(lines.common.amount).toBe(1138)
     expect(lines.total).toBe(lines.water.amount + lines.electric.amount + lines.common.amount)
+  })
+
+  it('rounds a fractional area half up even when the product carries floating point noise', () => {
+    expect(computeLines(reading(), 0.15, { ...RATES, common: 30 }).common.amount).toBe(5) // 0.15 × 30 = 4.5
+    expect(computeLines(reading(), 0.35, { ...RATES, common: 10 }).common.amount).toBe(4) // 0.35 × 10 = 3.5 (3.4999999999999996 in binary)
   })
 
   it('is exact for the sample 53.3 sqm unit', () => {
@@ -173,8 +179,8 @@ describe('billable', () => {
     expect(ids(property([unit()], [first, second]))).toEqual(['A-1204/new'])
   })
 
-  it('still bills a unit that was closed after the lease was made', () => {
-    expect(ids(property([unit({ closed: true })], [lease()]))).toEqual(['A-1204/l1'])
+  it('does not bill a unit that is closed for renovation, even if a lease exists', () => {
+    expect(ids(property([unit({ closed: true })], [lease()]))).toEqual([])
   })
 
   it('sorts by unit code and works across a year boundary', () => {
@@ -185,7 +191,7 @@ describe('billable', () => {
   })
 })
 
-describe('previousReading and isLatestReading', () => {
+describe('previousReading and nextReading', () => {
   const readings = [
     reading({ id: 'a', period: '2026-08' }),
     reading({ id: 'b', period: '2026-10' }),
@@ -199,10 +205,11 @@ describe('previousReading and isLatestReading', () => {
     expect(previousReading(readings, 'nobody', '2026-11')).toBeUndefined()
   })
 
-  it('knows whether a reading is the latest of its unit', () => {
-    expect(isLatestReading(readings, 'u1', '2026-10')).toBe(true)
-    expect(isLatestReading(readings, 'u1', '2026-08')).toBe(false)
-    expect(isLatestReading(readings, 'u1', '2026-11')).toBe(true)
+  it('finds the first later reading of the same unit', () => {
+    expect(nextReading(readings, 'u1', '2026-08')?.id).toBe('b')
+    expect(nextReading(readings, 'u1', '2026-09')?.id).toBe('b')
+    expect(nextReading(readings, 'u1', '2026-10')).toBeUndefined()
+    expect(nextReading(readings, 'nobody', '2026-08')).toBeUndefined()
   })
 })
 
@@ -266,10 +273,24 @@ describe('validateReading', () => {
     expect(validateReading(input(), ctx({ invoices: [invoice({ period: '2026-09' }), invoice({ unitId: 'u9' })] }))).toEqual({})
   })
 
-  it('only lets the latest reading of a unit be changed', () => {
-    const later = [reading({ id: 'later', period: '2026-11', waterPrev: 116, waterCurr: 130, electricPrev: 1280, electricCurr: 1500 })]
-    expect(validateReading(input(), ctx({ readings: later })).reading).toBe('billing.errors.readingChained')
-    expect(validateReading(input({ period: '2026-11', waterPrev: 116, waterCurr: 131, electricPrev: 1280, electricCurr: 1500 }), ctx({ readings: later, selfId: 'later' }))).toEqual({})
+  describe('when a later reading exists', () => {
+    const later = (over = {}) => [reading({ id: 'later', period: '2026-11', waterPrev: 116, waterCurr: 130, electricPrev: 1280, electricCurr: 1500, ...over })]
+    const nextInvoice = invoice({ period: '2026-11' })
+
+    it('lets an older reading be corrected while the next period is not invoiced', () => {
+      expect(validateReading(input({ waterCurr: 120, electricCurr: 1290 }), ctx({ readings: later() }))).toEqual({})
+    })
+
+    it('does not let the corrected "after" value pass the value already recorded for the next period', () => {
+      const e = validateReading(input({ waterCurr: 131, electricCurr: 1501 }), ctx({ readings: later() }))
+      expect(e.waterCurr).toBe('billing.errors.readingNextOrder')
+      expect(e.electricCurr).toBe('billing.errors.readingNextOrder')
+      expect(validateReading(input({ waterCurr: 130, electricCurr: 1500 }), ctx({ readings: later() }))).toEqual({})
+    })
+
+    it('locks the reading once the next period has an invoice, because that invoice depends on it', () => {
+      expect(validateReading(input(), ctx({ readings: later(), invoices: [nextInvoice] })).reading).toBe('billing.errors.readingChained')
+    })
   })
 
   it('does not count its own previous version as an earlier or later reading', () => {

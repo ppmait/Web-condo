@@ -7,7 +7,7 @@ import { formatBaht } from '../../lib/format'
 import { BILLING_KEY, createLocalBillingApi } from '../../billing/localBillingApi'
 import { billable, previousReading, summarize } from '../../billing/rules'
 import { makeBillingSeed } from '../../billing/seed'
-import type { BillingApi, BillingData } from '../../billing/types'
+import { BillingError, type BillingApi, type BillingData } from '../../billing/types'
 import { MemoryStorage } from '../../test/memoryStorage'
 import { renderBilling } from '../../test/renderBilling'
 import { TEST_TODAY } from '../../test/renderProperty'
@@ -203,6 +203,19 @@ describe('ReadingsTab: saving a reading', () => {
   })
 })
 
+describe('ReadingsTab: errors that come back from saving', () => {
+  it('announces a row-level error returned by the api', async () => {
+    const user = userEvent.setup()
+    const { api, prop } = await setup()
+    const { unit, prev } = await awaiting(api, prop)
+    vi.spyOn(api, 'saveReading').mockRejectedValueOnce(new BillingError('invalid_input', { reading: 'billing.errors.readingLocked' }))
+    await user.type(input('น้ำ', 'ปัจจุบัน', unit.code), String(prev.waterCurr + 1))
+    await user.type(input('ไฟ', 'ปัจจุบัน', unit.code), String(prev.electricCurr + 1))
+    await user.click(saveButton(unit.code))
+    expect(await within(rowOf(unit.code)).findByRole('alert')).toHaveTextContent(/ออกใบแจ้งหนี้ของห้องนี้ในรอบนี้แล้ว/)
+  })
+})
+
 describe('ReadingsTab: rows that are locked', () => {
   it('locks a unit that already has an invoice for the period, and says why', async () => {
     const { prop } = await setup({ period: '2026-10' })
@@ -215,7 +228,7 @@ describe('ReadingsTab: rows that are locked', () => {
     expect(screen.queryByRole('button', { name: `บันทึก ห้อง ${unit.code}` })).not.toBeInTheDocument()
   })
 
-  it('locks an older period that a newer reading already follows', async () => {
+  it('locks an older period whose next period is already invoiced', async () => {
     const pair = makeTestBilling()
     const prop = await pair.property.load()
     const seed = makeBillingSeed(prop, TEST_TODAY)
@@ -232,7 +245,27 @@ describe('ReadingsTab: rows that are locked', () => {
     const api = createLocalBillingApi({ storage, today: () => TEST_TODAY, property: pair.property })
     await setup({ api, property: pair.property, period: '2026-09' })
     expect(input('น้ำ', 'ปัจจุบัน', unit.code)).toBeDisabled()
-    expect(within(rowOf(unit.code)).getByText(/แก้ได้เฉพาะเลขมิเตอร์ล่าสุดของห้อง/)).toBeInTheDocument()
+    expect(within(rowOf(unit.code)).getByText(/รอบถัดไปของห้องนี้ออกใบแจ้งหนี้แล้ว/)).toBeInTheDocument()
+  })
+})
+
+describe('ReadingsTab: correcting an older reading', () => {
+  it('lets a reading be corrected after a later month was recorded, as long as that month is not invoiced', async () => {
+    const user = userEvent.setup()
+    const pair = makeTestBilling()
+    const prop = await pair.property.load()
+    const data = await pair.billing.load()
+    const cur = data.readings.find((r) => r.period === PERIOD && billable(prop, '2026-12').some((b) => b.unit.id === r.unitId))!
+    const unit = prop.units.find((u) => u.id === cur.unitId)!
+    await pair.billing.saveReading({ unitId: cur.unitId, period: '2026-12', waterPrev: cur.waterCurr, waterCurr: cur.waterCurr + 30, electricPrev: cur.electricCurr, electricCurr: cur.electricCurr + 300 })
+    await setup({ api: pair.billing, property: pair.property })
+    expect(input('น้ำ', 'ปัจจุบัน', unit.code)).toBeEnabled()
+    await user.clear(input('น้ำ', 'ปัจจุบัน', unit.code))
+    await user.type(input('น้ำ', 'ปัจจุบัน', unit.code), String(cur.waterCurr + 2))
+    await user.click(saveButton(unit.code))
+    await waitFor(async () => expect((await pair.billing.load()).readings.find((r) => r.id === cur.id)!.waterCurr).toBe(cur.waterCurr + 2))
+    const next = (await pair.billing.load()).readings.find((r) => r.unitId === cur.unitId && r.period === '2026-12')!
+    expect(next.waterPrev).toBe(cur.waterCurr + 2)
   })
 })
 
@@ -264,9 +297,11 @@ describe('ReadingsTab: issuing invoices', () => {
     const list = billable(prop, PERIOD)
     const missing = list.filter(({ unit }) => !before.readings.some((r) => r.unitId === unit.id && r.period === PERIOD)).length
     const ready = list.length - missing
+    const missingCodes = list.filter(({ unit }) => !before.readings.some((r) => r.unitId === unit.id && r.period === PERIOD)).map(({ unit }) => unit.code)
     await user.click(issueButton())
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'ออกใบแจ้งหนี้' }))
     expect(await screen.findByText(`ออก ${ready} ใบ ข้าม ${missing} ห้อง`)).toBeInTheDocument()
+    expect(screen.getByRole('dialog')).toHaveTextContent(`ข้ามเพราะยังไม่จดมิเตอร์: ${missingCodes.join(', ')}`)
     const after = await api.load()
     expect(after.invoices.filter((i) => i.period === PERIOD)).toHaveLength(ready)
     await user.click(within(screen.getByRole('dialog')).getAllByRole('button', { name: 'ปิด' }).at(-1)!)
@@ -298,6 +333,7 @@ describe('ReadingsTab: issuing invoices', () => {
     const count = (await api.load()).invoices.length
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'ออกใบแจ้งหนี้' }))
     expect(await screen.findByText(/^ออก 0 ใบ/)).toBeInTheDocument()
+    expect(screen.getByRole('dialog')).toHaveTextContent('ข้ามเพราะออกใบแจ้งหนี้ไปแล้ว')
     expect((await api.load()).invoices).toHaveLength(count)
   })
 

@@ -375,6 +375,7 @@
       "confirm": "Issue invoices",
       "resultTitle": "Result",
       "result": "Issued {{issued}}, skipped {{skipped}}",
+      "skipped": { "noReading": "Skipped, no reading yet: {{units}}", "exists": "Skipped, already invoiced: {{units}}" },
       "failed": "Could not issue the invoices. Please try again."
     },
     "loading": "Loading billing data…",
@@ -454,7 +455,8 @@
       "readingOrder": "The current reading cannot be below the previous one",
       "readingPrev": "The previous reading must equal the current reading of the previous period",
       "readingLocked": "The invoice for this unit and period is already issued, so the reading cannot be changed",
-      "readingChained": "Only the latest reading of a unit can be changed (a later period exists)",
+      "readingChained": "Cannot be changed because the next period of this unit has already been invoiced",
+      "readingNextOrder": "The current value cannot exceed the value already recorded for the next period",
       "slip": "Please attach a valid payment slip file",
       "rejectReason": "Please give a reason for rejecting",
       "notBillable": "This unit is not billed in this period (no lease covers it)"

@@ -47,6 +47,7 @@ export function billable(property: PropertyData, period: Period): { unit: Unit; 
   const end = periodEnd(period)
   const result: { unit: Unit; lease: Lease }[] = []
   for (const unit of property.units) {
+    if (unit.closed) continue // closed for renovation: not billed
     const candidates = property.leases.filter((l) => {
       // a cancelled lease ends on the day it was cancelled; one cancelled before it ever started never counts
       const effectiveEnd = l.cancelledAt && l.cancelledAt < l.endDate ? l.cancelledAt : l.endDate
@@ -65,8 +66,11 @@ export function previousReading(readings: MeterReading[], unitId: string, period
     .reduce<MeterReading | undefined>((latest, r) => (!latest || r.period > latest.period ? r : latest), undefined)
 }
 
-export const isLatestReading = (readings: MeterReading[], unitId: string, period: Period): boolean =>
-  !readings.some((r) => r.unitId === unitId && r.period > period)
+export function nextReading(readings: MeterReading[], unitId: string, period: Period): MeterReading | undefined {
+  return readings
+    .filter((r) => r.unitId === unitId && r.period > period)
+    .reduce<MeterReading | undefined>((first, r) => (!first || r.period < first.period ? r : first), undefined)
+}
 
 export function validateRates(rates: Rates): FieldErrors {
   const errors: FieldErrors = {}
@@ -98,10 +102,16 @@ export function validateReading(
     if (!errors.electricPrev && input.electricPrev !== earlier.electricCurr) errors.electricPrev = 'billing.errors.readingPrev'
   }
 
+  const later = nextReading(others, input.unitId, input.period)
   if (ctx.invoices.some((i) => i.unitId === input.unitId && i.period === input.period)) {
     errors.reading = 'billing.errors.readingLocked'
-  } else if (!isLatestReading(others, input.unitId, input.period)) {
+  } else if (later && ctx.invoices.some((i) => i.unitId === input.unitId && i.period === later.period)) {
+    // the invoice of the next period was computed from this reading's "after" values
     errors.reading = 'billing.errors.readingChained'
+  } else if (later) {
+    // the next period's "before" value will follow this one, so it must not end up above that period's "after" value
+    if (!errors.waterCurr && input.waterCurr > later.waterCurr) errors.waterCurr = 'billing.errors.readingNextOrder'
+    if (!errors.electricCurr && input.electricCurr > later.electricCurr) errors.electricCurr = 'billing.errors.readingNextOrder'
   }
   return errors
 }
