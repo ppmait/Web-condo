@@ -168,6 +168,16 @@ describe('JuristicMaintenancePage: assigning a technician', () => {
     await waitFor(async () => expect((await api.load()).requests.find((x) => x.id === r.id)!.assigneeId).toBe(other.id))
   })
 
+  it('opens the detail and the assignment dialog of the same request without React warning about duplicate keys', async () => {
+    const user = userEvent.setup()
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { data } = await setup()
+    const r = byStatus(data, 'waiting')
+    await user.click(within(await openDetail(r)).getByRole('button', { name: 'มอบหมายช่าง' }))
+    expect(assignDialog(r.code)).toBeInTheDocument()
+    expect(spy).not.toHaveBeenCalled()
+  })
+
   it.each(['inProgress', 'done'] as const)('offers no assignment for a %s request', async (status) => {
     const { data } = await setup()
     const detail = await openDetail(byStatus(data, status))

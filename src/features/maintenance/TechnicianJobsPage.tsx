@@ -89,13 +89,13 @@ export default function TechnicianJobsPage() {
 
       {detail && (
         <RequestDetailModal
-          key={detail.id}
+          key={`detail-${detail.id}`}
           requestId={detail.id}
           onClose={closeDetail}
           actions={me && canTechnicianUpdate(detail, me) ? <Button onClick={() => setUpdating(detail.id)}>{stepLabel(nextStatus(detail.status))}</Button> : undefined}
         />
       )}
-      {toUpdate && <StatusUpdateDialog key={toUpdate.id} request={toUpdate} onClose={() => setUpdating(null)} />}
+      {toUpdate && <StatusUpdateDialog key={`update-${toUpdate.id}`} request={toUpdate} onClose={() => setUpdating(null)} />}
     </section>
   )
 }

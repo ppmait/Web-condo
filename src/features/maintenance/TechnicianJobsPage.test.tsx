@@ -109,6 +109,16 @@ describe('TechnicianJobsPage: updating a job', () => {
     expect(within(card(r)).getByText(STATUS_TEXT.inProgress)).toBeInTheDocument()
   })
 
+  it('opens the detail and the update dialog of the same job without React warning about duplicate keys', async () => {
+    const user = userEvent.setup()
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { mine } = await setup()
+    const r = first(mine, 'assigned')
+    await user.click(within(await openJob(r)).getByRole('button', { name: 'เริ่มซ่อม' }))
+    expect(updateDialog(r)).toBeInTheDocument()
+    expect(spy).not.toHaveBeenCalled()
+  })
+
   it('lets an in-progress job be finished, with no note needed', async () => {
     const user = userEvent.setup()
     const { api, mine } = await setup()

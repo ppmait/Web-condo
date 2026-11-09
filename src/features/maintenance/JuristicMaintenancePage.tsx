@@ -47,8 +47,8 @@ export default function JuristicMaintenancePage() {
   const toAssign = assigning ? data.requests.find((r) => r.id === assigning) : undefined
 
   const columns: Column<MaintenanceRequest>[] = [
-    { key: 'code', header: t('maintenance.juristic.columns.code'), render: (r) => r.code },
-    { key: 'unit', header: t('maintenance.juristic.columns.unit'), render: (r) => r.unitCode },
+    { key: 'code', header: t('maintenance.juristic.columns.code'), render: (r) => <span className="whitespace-nowrap">{r.code}</span> },
+    { key: 'unit', header: t('maintenance.juristic.columns.unit'), render: (r) => <span className="whitespace-nowrap">{r.unitCode}</span> },
     { key: 'tenant', header: t('maintenance.juristic.columns.tenant'), render: (r) => r.tenantName },
     { key: 'category', header: t('maintenance.juristic.columns.category'), render: (r) => t(`maintenance.category.${r.category}`) },
     { key: 'title', header: t('maintenance.juristic.columns.title'), render: (r) => r.title },
@@ -63,7 +63,7 @@ export default function JuristicMaintenancePage() {
           type="button"
           aria-label={t('maintenance.juristic.viewDetail', { code: r.code })}
           onClick={() => setSelected(r.id)}
-          className="text-sm font-medium text-primary-container underline-offset-2 hover:underline"
+          className="whitespace-nowrap text-sm font-medium text-primary-container underline-offset-2 hover:underline"
         >
           {t('maintenance.juristic.openDetail')}
         </button>
@@ -120,7 +120,7 @@ export default function JuristicMaintenancePage() {
 
       {detail && (
         <RequestDetailModal
-          key={detail.id}
+          key={`detail-${detail.id}`}
           requestId={detail.id}
           onClose={closeDetail}
           actions={
@@ -130,7 +130,7 @@ export default function JuristicMaintenancePage() {
           }
         />
       )}
-      {toAssign && <AssignDialog key={toAssign.id} request={toAssign} onClose={() => setAssigning(null)} />}
+      {toAssign && <AssignDialog key={`assign-${toAssign.id}`} request={toAssign} onClose={() => setAssigning(null)} />}
     </section>
   )
 }
