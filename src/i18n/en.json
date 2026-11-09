@@ -271,6 +271,45 @@
     }
   },
   "maintenance": {
+    "loading": "Loading repair data…",
+    "loadFailed": "Could not load repair data. Try refreshing the page.",
+    "tenant": {
+      "new": "New repair request",
+      "empty": "No repair requests yet",
+      "noLease": "This account has no active lease, so a repair request cannot be made (the account's phone number must match the number on the lease).",
+      "openRequest": "Open repair request {{code}}"
+    },
+    "form": {
+      "title": "New repair request",
+      "category": "Category",
+      "choose": "Choose a category",
+      "subject": "Title",
+      "description": "Description",
+      "photos": "Photos (1–3, up to 10 MB each)",
+      "removePhoto": "Remove photo {{name}}",
+      "submit": "Send request",
+      "photoUnsupported": "{{name}} is not supported. Try a JPG or PNG file.",
+      "tooMany": "You can attach at most 3 photos",
+      "noLease": "This account has no active lease, so a repair request cannot be made",
+      "storageFailed": "Could not save because the browser storage is full. Try fewer photos or remove old data.",
+      "failed": "Could not send the request. Please try again."
+    },
+    "detail": {
+      "title": "Repair {{code}}",
+      "unit": "Unit",
+      "tenant": "Requested by",
+      "category": "Category",
+      "status": "Status",
+      "createdAt": "Date",
+      "technician": "Technician",
+      "none": "Not assigned yet",
+      "description": "Description",
+      "photos": "Photos",
+      "viewPhoto": "View photo larger: {{name}}",
+      "large": "{{name}} (large)",
+      "timeline": "Progress",
+      "by": "by {{name}}"
+    },
     "category": {
       "electrical": "Electrical",
       "plumbing": "Plumbing",

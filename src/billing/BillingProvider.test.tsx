@@ -33,6 +33,12 @@ const mount = (api: BillingApi, today: () => string = () => TEST_TODAY) =>
     </BillingProvider>,
   )
 
+/** The status text shows first; the hook value is copied in an effect, so wait for that copy too. */
+async function ready() {
+  await screen.findByText('ready')
+  await vi.waitFor(() => expect(holder.value?.status).toBe('ready'))
+}
+
 afterEach(() => vi.restoreAllMocks())
 
 describe('BillingProvider', () => {
@@ -41,14 +47,14 @@ describe('BillingProvider', () => {
     const expected = await api.load()
     mount(api)
     expect(screen.getByTestId('status')).toHaveTextContent('loading')
-    await screen.findByText('ready')
+    await ready()
     expect(screen.getByTestId('invoices')).toHaveTextContent(String(expected.invoices.length))
     expect(screen.getByTestId('today')).toHaveTextContent(TEST_TODAY)
   })
 
   it('reloads after a change, so every screen sees it', async () => {
     mount(makeTestBilling().billing)
-    await screen.findByText('ready')
+    await ready()
     await act(async () => {
       await billing().saveRates({ water: 25, electric: 9, common: 70 })
     })
@@ -57,7 +63,7 @@ describe('BillingProvider', () => {
 
   it('issues invoices and shows them', async () => {
     mount(makeTestBilling().billing)
-    await screen.findByText('ready')
+    await ready()
     const before = billing().data.invoices.length
     let issued = 0
     await act(async () => {
@@ -69,7 +75,7 @@ describe('BillingProvider', () => {
 
   it('throws the BillingError on to the caller and leaves the data unchanged', async () => {
     mount(makeTestBilling().billing)
-    await screen.findByText('ready')
+    await ready()
     let error: unknown
     await act(async () => {
       error = await billing().saveRates({ water: 0, electric: 7, common: 60 }).catch((e: unknown) => e)
@@ -81,7 +87,7 @@ describe('BillingProvider', () => {
 
   it('reflects slips, receipts and notifications', async () => {
     mount(makeTestBilling().billing)
-    await screen.findByText('ready')
+    await ready()
     const unread = billing().data.notifications.find((n) => !n.read)!
     await act(async () => {
       await billing().markRead(unread.id)
@@ -107,7 +113,7 @@ describe('BillingProvider', () => {
     let loads = 0
     const api: BillingApi = { ...base, load: () => (loads++ === 0 ? base.load() : Promise.reject(new Error('boom'))) }
     mount(api)
-    await screen.findByText('ready')
+    await ready()
     await act(async () => {
       await billing().saveRates({ water: 25, electric: 9, common: 70 })
     })
@@ -130,7 +136,7 @@ describe('BillingProvider', () => {
     const api = makeTestBilling().billing
     const load = vi.spyOn(api, 'load')
     mount(api)
-    await screen.findByText('ready')
+    await ready()
     const before = load.mock.calls.length
     await act(async () => {
       window.dispatchEvent(new StorageEvent('storage', { key: 'condo:property' }))

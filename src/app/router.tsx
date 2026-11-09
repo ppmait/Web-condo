@@ -9,6 +9,7 @@ import InvoicesTab from '../features/billing/InvoicesTab'
 import RatesTab from '../features/billing/RatesTab'
 import ReadingsTab from '../features/billing/ReadingsTab'
 import SlipsTab from '../features/billing/SlipsTab'
+import TenantMaintenancePage from '../features/maintenance/TenantMaintenancePage'
 import TenantBillingPage from '../features/billing/TenantBillingPage'
 import InspectionsTab from '../features/units/InspectionsTab'
 import LeasesTab from '../features/units/LeasesTab'
@@ -19,6 +20,7 @@ import { NAV_BY_ROLE, ROLES, roleHome } from './roles'
 
 const UNITS_PATH = '/juristic/units' // built page with its own nested tab routes
 const TENANT_BILLING_PATH = '/tenant/billing' // built page
+const TENANT_MAINTENANCE_PATH = '/tenant/maintenance' // built page
 const JURISTIC_BILLING_PATH = '/juristic/billing' // built page with its own nested tab routes
 
 export function AppRoutes() {
@@ -36,10 +38,11 @@ export function AppRoutes() {
           ))}
           {ROLES.flatMap((role) =>
             NAV_BY_ROLE[role]
-              .filter((item) => item.path !== UNITS_PATH && item.path !== TENANT_BILLING_PATH && item.path !== JURISTIC_BILLING_PATH)
+              .filter((item) => item.path !== UNITS_PATH && item.path !== TENANT_BILLING_PATH && item.path !== JURISTIC_BILLING_PATH && item.path !== TENANT_MAINTENANCE_PATH)
               .map((item) => <Route key={item.path} path={item.path} element={<PlaceholderPage />} />),
           )}
           <Route path={TENANT_BILLING_PATH} element={<TenantBillingPage />} />
+          <Route path={TENANT_MAINTENANCE_PATH} element={<TenantMaintenancePage />} />
           <Route path={JURISTIC_BILLING_PATH} element={<BillingPage />}>
             <Route index element={<ReadingsTab />} />
             <Route path="invoices" element={<InvoicesTab />} />

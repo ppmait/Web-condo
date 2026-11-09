@@ -43,6 +43,12 @@ const request = (over: Partial<CreateRequestInput> = {}): CreateRequestInput => 
   ...over,
 })
 
+/** The status text shows first; the hook value is copied in an effect, so wait for that copy too. */
+async function ready() {
+  await screen.findByText('ready')
+  await vi.waitFor(() => expect(holder.value?.status).toBe('ready'))
+}
+
 afterEach(() => vi.restoreAllMocks())
 
 describe('MaintenanceProvider', () => {
@@ -51,14 +57,14 @@ describe('MaintenanceProvider', () => {
     const expected = await api.load()
     mount(api)
     expect(screen.getByTestId('status')).toHaveTextContent('loading')
-    await screen.findByText('ready')
+    await ready()
     expect(screen.getByTestId('requests')).toHaveTextContent(String(expected.requests.length))
     expect(screen.getByTestId('today')).toHaveTextContent(TEST_TODAY)
   })
 
   it('reloads after a change, so every screen sees it', async () => {
     mount(makeTestMaintenance().maintenance)
-    await screen.findByText('ready')
+    await ready()
     const before = maintenance().data.requests.length
     await act(async () => {
       await maintenance().createRequest(request())
@@ -68,7 +74,7 @@ describe('MaintenanceProvider', () => {
 
   it('throws the MaintenanceError on to the caller and leaves the data unchanged', async () => {
     mount(makeTestMaintenance().maintenance)
-    await screen.findByText('ready')
+    await ready()
     const before = maintenance().data.requests.length
     let error: unknown
     await act(async () => {
@@ -81,7 +87,7 @@ describe('MaintenanceProvider', () => {
 
   it('reflects assignments and notifications', async () => {
     mount(makeTestMaintenance().maintenance)
-    await screen.findByText('ready')
+    await ready()
     const waiting = maintenance().data.requests.find((r) => r.status === 'waiting')!
     await act(async () => {
       await maintenance().assign(waiting.id, maintenance().data.technicians[0].id, 'สมหญิง นิติบุคคล')
@@ -109,7 +115,7 @@ describe('MaintenanceProvider', () => {
     let loads = 0
     const api: MaintenanceApi = { ...base, load: () => (loads++ === 0 ? base.load() : Promise.reject(new Error('boom'))) }
     mount(api)
-    await screen.findByText('ready')
+    await ready()
     await act(async () => {
       await maintenance().markAllRead('role:juristic')
     })
@@ -132,7 +138,7 @@ describe('MaintenanceProvider', () => {
     const api = makeTestMaintenance().maintenance
     const load = vi.spyOn(api, 'load')
     mount(api)
-    await screen.findByText('ready')
+    await ready()
     const before = load.mock.calls.length
     await act(async () => {
       window.dispatchEvent(new StorageEvent('storage', { key: 'condo:billing' }))
