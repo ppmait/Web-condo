@@ -246,9 +246,10 @@ describe('InspectionsTab opened from the lease list (?lease=&type=)', () => {
   it('clears the address after saving too, and shows the new inspection', async () => {
     await renderTab({ route: '/juristic/units/inspections?lease=l-7&type=moveIn' })
     await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'บันทึก' }))
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    // saving is asynchronous: wait for the result instead of looking at the screen at once
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(screen.getByTestId('location')).toHaveTextContent(/^\/juristic\/units\/inspections$/)
-    expect(dataRows()).toHaveLength(7)
+    await vi.waitFor(() => expect(dataRows()).toHaveLength(7))
   })
 
   it.each([

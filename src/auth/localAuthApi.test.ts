@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEMO_ACCOUNTS, DEMO_PASSWORD } from './demoAccounts'
+import { DEMO_ACCOUNTS, DEMO_PASSWORD, DEMO_TENANT_PHONE } from './demoAccounts'
 import { SESSION_KEY, USERS_KEY, createLocalAuthApi } from './localAuthApi'
 import { AuthError, type RegisterForm } from './types'
 
@@ -62,6 +62,14 @@ const failure = async (p: Promise<unknown>) => {
 describe('seeding', () => {
   it('has no current user at first', async () => {
     expect(await make().currentUser()).toBeNull()
+  })
+
+  it('gives each demo account its own phone number: tenant01 is the tenant of unit A-1204 in the sample data', async () => {
+    const api = make()
+    expect((await api.login('tenant01', DEMO_PASSWORD)).phone).toBe('0810000001')
+    expect((await api.login('staff01', DEMO_PASSWORD)).phone).toBe('0800000000')
+    expect((await api.login('tech01', DEMO_PASSWORD)).phone).toBe('0800000000')
+    expect(DEMO_TENANT_PHONE).toBe('0810000001')
   })
 
   it.each(DEMO_ACCOUNTS)('seeds the demo account $username with role $role', async ({ username, role }) => {
