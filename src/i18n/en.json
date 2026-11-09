@@ -271,6 +271,17 @@
     }
   },
   "maintenance": {
+    "technician": {
+      "empty": "No jobs have been assigned to you yet",
+      "openJob": "Open job {{code}}",
+      "start": "Start repair",
+      "finish": "Repair done",
+      "updateTitle": "Update job {{code}}",
+      "updateMessage": "Change the status to “{{status}}”",
+      "note": "Note (optional)",
+      "stale": "This job was already updated or is not yours. The list was reloaded.",
+      "failed": "Could not complete the action. Please try again."
+    },
     "juristic": {
       "cards": {
         "waiting": "Awaiting assignment",

@@ -10,6 +10,7 @@ import RatesTab from '../features/billing/RatesTab'
 import ReadingsTab from '../features/billing/ReadingsTab'
 import SlipsTab from '../features/billing/SlipsTab'
 import JuristicMaintenancePage from '../features/maintenance/JuristicMaintenancePage'
+import TechnicianJobsPage from '../features/maintenance/TechnicianJobsPage'
 import TenantMaintenancePage from '../features/maintenance/TenantMaintenancePage'
 import TenantBillingPage from '../features/billing/TenantBillingPage'
 import InspectionsTab from '../features/units/InspectionsTab'
@@ -23,6 +24,7 @@ const UNITS_PATH = '/juristic/units' // built page with its own nested tab route
 const TENANT_BILLING_PATH = '/tenant/billing' // built page
 const TENANT_MAINTENANCE_PATH = '/tenant/maintenance' // built page
 const JURISTIC_MAINTENANCE_PATH = '/juristic/maintenance' // built page
+const TECHNICIAN_JOBS_PATH = '/technician/jobs' // built page
 const JURISTIC_BILLING_PATH = '/juristic/billing' // built page with its own nested tab routes
 
 export function AppRoutes() {
@@ -40,12 +42,13 @@ export function AppRoutes() {
           ))}
           {ROLES.flatMap((role) =>
             NAV_BY_ROLE[role]
-              .filter((item) => item.path !== UNITS_PATH && item.path !== TENANT_BILLING_PATH && item.path !== JURISTIC_BILLING_PATH && item.path !== TENANT_MAINTENANCE_PATH && item.path !== JURISTIC_MAINTENANCE_PATH)
+              .filter((item) => item.path !== UNITS_PATH && item.path !== TENANT_BILLING_PATH && item.path !== JURISTIC_BILLING_PATH && item.path !== TENANT_MAINTENANCE_PATH && item.path !== JURISTIC_MAINTENANCE_PATH && item.path !== TECHNICIAN_JOBS_PATH)
               .map((item) => <Route key={item.path} path={item.path} element={<PlaceholderPage />} />),
           )}
           <Route path={TENANT_BILLING_PATH} element={<TenantBillingPage />} />
           <Route path={TENANT_MAINTENANCE_PATH} element={<TenantMaintenancePage />} />
           <Route path={JURISTIC_MAINTENANCE_PATH} element={<JuristicMaintenancePage />} />
+          <Route path={TECHNICIAN_JOBS_PATH} element={<TechnicianJobsPage />} />
           <Route path={JURISTIC_BILLING_PATH} element={<BillingPage />}>
             <Route index element={<ReadingsTab />} />
             <Route path="invoices" element={<InvoicesTab />} />
