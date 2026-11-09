@@ -271,6 +271,18 @@
     }
   },
   "billing": {
+    "notifications": {
+      "title": "Notifications",
+      "bell": "Notifications",
+      "bellUnread": "Notifications, {{count}} unread",
+      "empty": "No notifications",
+      "markAll": "Mark all as read",
+      "unread": "New",
+      "invoiceIssued": "Invoice {{number}} issued",
+      "slipRejected": "The slip for invoice {{number}} was rejected",
+      "receiptIssued": "Receipt for invoice {{number}} issued",
+      "reason": "Reason: {{reason}}"
+    },
     "slips": {
       "empty": "No slips are waiting to be checked",
       "file": "Slip file",

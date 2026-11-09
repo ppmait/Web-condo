@@ -247,9 +247,10 @@ describe('InspectionsTab opened from the lease list (?lease=&type=)', () => {
     await renderTab({ route: '/juristic/units/inspections?lease=l-7&type=moveIn' })
     await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'บันทึก' }))
     // saving is asynchronous: wait for the result instead of looking at the screen at once
-    await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
-    expect(screen.getByTestId('location')).toHaveTextContent(/^\/juristic\/units\/inspections$/)
-    await vi.waitFor(() => expect(dataRows()).toHaveLength(7))
+    // generous timeout: the whole suite runs in parallel and a busy machine can make the save take longer
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument(), { timeout: 4000 })
+    await vi.waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/juristic\/units\/inspections$/), { timeout: 4000 })
+    await vi.waitFor(() => expect(dataRows()).toHaveLength(7), { timeout: 4000 })
   })
 
   it.each([

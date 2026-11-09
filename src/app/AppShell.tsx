@@ -4,6 +4,7 @@ import { Outlet, useLocation } from 'react-router'
 import { useAuth } from '../auth/useAuth'
 import { BillingProvider } from '../billing/BillingProvider'
 import LanguageToggle from '../components/LanguageToggle'
+import NotificationBell from './NotificationBell'
 import Sidebar from './Sidebar'
 import UserMenu from './UserMenu'
 
@@ -58,6 +59,7 @@ export default function AppShell() {
               {t('common.appName')}
             </span>
             <div data-testid="header-actions" className="flex shrink-0 items-center gap-2">
+              <NotificationBell />
               <LanguageToggle />
               <UserMenu />
             </div>

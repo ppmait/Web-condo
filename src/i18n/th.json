@@ -271,6 +271,18 @@
     }
   },
   "billing": {
+    "notifications": {
+      "title": "การแจ้งเตือน",
+      "bell": "การแจ้งเตือน",
+      "bellUnread": "การแจ้งเตือน ยังไม่อ่าน {{count}} รายการ",
+      "empty": "ไม่มีการแจ้งเตือน",
+      "markAll": "อ่านทั้งหมด",
+      "unread": "ใหม่",
+      "invoiceIssued": "ออกใบแจ้งหนี้ {{number}} แล้ว",
+      "slipRejected": "สลิปของใบแจ้งหนี้ {{number}} ถูกปฏิเสธ",
+      "receiptIssued": "ออกใบเสร็จของใบแจ้งหนี้ {{number}} แล้ว",
+      "reason": "เหตุผล: {{reason}}"
+    },
     "slips": {
       "empty": "ไม่มีสลิปที่รอตรวจสอบ",
       "file": "ไฟล์สลิป",
