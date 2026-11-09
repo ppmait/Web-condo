@@ -271,6 +271,27 @@
     }
   },
   "facilities": {
+    "parcels": {
+      "pending": "พัสดุรอรับ ({{count}})",
+      "done": "รับแล้ว",
+      "emptyPending": "ไม่มีพัสดุที่รอรับ",
+      "emptyDone": "ยังไม่มีพัสดุที่รับแล้ว",
+      "open": "เปิดพัสดุ {{code}}",
+      "tracking": "เลขติดตาม {{no}}",
+      "arrived": "มาถึง {{date}}",
+      "pickedOn": "รับเมื่อ {{date}}"
+    },
+    "parcelDetail": {
+      "title": "พัสดุ {{code}}",
+      "unit": "ห้อง",
+      "tenant": "ผู้รับ",
+      "carrier": "ขนส่ง",
+      "tracking": "เลขติดตาม",
+      "location": "ที่วางพัสดุ",
+      "status": "สถานะ",
+      "arrivedOn": "วันที่มาถึง",
+      "none": "—"
+    },
     "loading": "กำลังโหลดข้อมูลส่วนกลาง…",
     "loadFailed": "โหลดข้อมูลส่วนกลางไม่สำเร็จ ลองรีเฟรชหน้านี้อีกครั้ง",
     "tenant": {

@@ -271,6 +271,27 @@
     }
   },
   "facilities": {
+    "parcels": {
+      "pending": "Parcels waiting ({{count}})",
+      "done": "Picked up",
+      "emptyPending": "No parcels are waiting for you",
+      "emptyDone": "No picked-up parcels yet",
+      "open": "Open parcel {{code}}",
+      "tracking": "Tracking no. {{no}}",
+      "arrived": "Arrived {{date}}",
+      "pickedOn": "Picked up {{date}}"
+    },
+    "parcelDetail": {
+      "title": "Parcel {{code}}",
+      "unit": "Unit",
+      "tenant": "Recipient",
+      "carrier": "Carrier",
+      "tracking": "Tracking no.",
+      "location": "Kept at",
+      "status": "Status",
+      "arrivedOn": "Arrived on",
+      "none": "—"
+    },
     "loading": "Loading facilities…",
     "loadFailed": "Could not load the facilities. Try refreshing the page.",
     "tenant": {
