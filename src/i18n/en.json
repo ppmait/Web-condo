@@ -271,6 +271,76 @@
     }
   },
   "billing": {
+    "loading": "Loading billing data…",
+    "loadFailed": "Could not load billing data. Try refreshing the page.",
+    "invoiceStatus": {
+      "paid": "Paid",
+      "verifying": "Verifying slip",
+      "overdue": "Overdue",
+      "unpaid": "Unpaid"
+    },
+    "tenant": {
+      "due": "To pay",
+      "history": "Paid invoice history",
+      "noneDue": "No invoices to pay",
+      "noInvoices": "There are no invoices for this account yet (the account's phone number must match the number on the lease).",
+      "noHistory": "No paid invoices yet"
+    },
+    "columns": {
+      "number": "Invoice no.",
+      "period": "Period",
+      "paidOn": "Paid on",
+      "total": "Total",
+      "status": "Status",
+      "receipt": "Receipt",
+      "item": "Item",
+      "calculation": "Calculation",
+      "amount": "Amount"
+    },
+    "openInvoice": "Open invoice {{number}}",
+    "viewReceipt": "View receipt",
+    "viewReceiptOf": "View receipt {{number}}",
+    "receiptPending": "Receipt pending",
+    "dueOn": "Due {{date}}",
+    "detail": {
+      "title": "Invoice {{number}}",
+      "unit": "Unit",
+      "period": "Period",
+      "dueDate": "Due date",
+      "status": "Status",
+      "water": "Water charge",
+      "electric": "Electricity charge",
+      "common": "Common area fee",
+      "netTotal": "Net total",
+      "usage": "{{units}} units × {{rate}}",
+      "commonUsage": "{{area}} sq.m. × {{rate}}"
+    },
+    "qr": {
+      "alt": "Sample payment QR image",
+      "sample": "Sample only, not a real QR code",
+      "reference": "Reference: {{number}}"
+    },
+    "slip": {
+      "field": "Slip file (JPG or PNG, up to 5 MB)",
+      "submit": "Send slip",
+      "sent": "Slip sent, waiting for the juristic office to check it",
+      "rejected": "The previous slip was rejected: {{reason}}",
+      "history": "Slip history",
+      "status": { "pending": "Waiting", "approved": "Approved", "rejected": "Rejected" },
+      "alreadyPending": "A slip is already waiting to be checked",
+      "alreadyPaid": "This invoice has already been paid",
+      "notFound": "This invoice no longer exists",
+      "failed": "Could not send the slip. Please try again."
+    },
+    "paidAwaitingReceipt": "Paid, waiting for the juristic office to issue the receipt",
+    "receipt": {
+      "title": "Receipt",
+      "number": "Receipt no.",
+      "issuedAt": "Issued on",
+      "payer": "Paid by",
+      "sample": "Sample, not a tax document",
+      "back": "Back to the invoice"
+    },
     "errors": {
       "rate": "The rate must be a whole number of baht above 0",
       "reading": "A meter reading must be a whole number, not negative",

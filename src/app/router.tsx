@@ -4,6 +4,7 @@ import LoginPage from '../features/auth/LoginPage'
 import RegisterPage from '../features/auth/RegisterPage'
 import NotFoundPage from '../features/NotFoundPage'
 import PlaceholderPage from '../features/PlaceholderPage'
+import TenantBillingPage from '../features/billing/TenantBillingPage'
 import InspectionsTab from '../features/units/InspectionsTab'
 import LeasesTab from '../features/units/LeasesTab'
 import UnitsPage from '../features/units/UnitsPage'
@@ -12,6 +13,7 @@ import AppShell from './AppShell'
 import { NAV_BY_ROLE, ROLES, roleHome } from './roles'
 
 const UNITS_PATH = '/juristic/units' // built page with its own nested tab routes
+const TENANT_BILLING_PATH = '/tenant/billing' // built page
 
 export function AppRoutes() {
   return (
@@ -28,9 +30,10 @@ export function AppRoutes() {
           ))}
           {ROLES.flatMap((role) =>
             NAV_BY_ROLE[role]
-              .filter((item) => item.path !== UNITS_PATH)
+              .filter((item) => item.path !== UNITS_PATH && item.path !== TENANT_BILLING_PATH)
               .map((item) => <Route key={item.path} path={item.path} element={<PlaceholderPage />} />),
           )}
+          <Route path={TENANT_BILLING_PATH} element={<TenantBillingPage />} />
           <Route path={UNITS_PATH} element={<UnitsPage />}>
             <Route index element={<UnitsTab />} />
             <Route path="leases" element={<LeasesTab />} />
