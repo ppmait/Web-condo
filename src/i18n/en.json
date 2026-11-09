@@ -271,6 +271,62 @@
     }
   },
   "facilities": {
+    "loading": "Loading facilities…",
+    "loadFailed": "Could not load the facilities. Try refreshing the page.",
+    "tenant": {
+      "pickDate": "Day to check",
+      "quota": "Your unit has used {{used}} of {{max}} bookings in the week of the chosen day",
+      "book": "Book a facility",
+      "bookThis": "Book this facility",
+      "bookOf": "Book {{name}}",
+      "noLease": "This account has no active lease, so a facility cannot be booked (the account's phone number must match the number on the lease).",
+      "mine": "My bookings",
+      "empty": "No bookings yet",
+      "openBooking": "Open booking {{code}}",
+      "open": "Open for booking",
+      "closed": "Closed for renovation",
+      "hours": "Open {{open}}–{{close}}",
+      "capacity": "Holds {{count}} people per hour",
+      "people": "{{count}} people"
+    },
+    "availability": {
+      "label": "Free places per hour of {{name}}",
+      "slot": "{{hour}} free {{free}} of {{capacity}}"
+    },
+    "form": {
+      "title": "Book a facility",
+      "facility": "Facility",
+      "choose": "Choose a facility",
+      "date": "Day of use",
+      "start": "Start hour (0–23)",
+      "hours": "Number of hours",
+      "people": "People (including you)",
+      "free": "Free places in this slot: {{count}}",
+      "submit": "Send booking request",
+      "failed": "Could not send the booking request. Please try again."
+    },
+    "detail": {
+      "title": "Booking {{code}}",
+      "facility": "Facility",
+      "when": "Day and time",
+      "time": "{{start}}–{{end}}",
+      "people": "People",
+      "unit": "Unit",
+      "tenant": "Booked by",
+      "status": "Status",
+      "createdAt": "Requested on",
+      "reason": "Reason for rejecting: {{reason}}",
+      "timeline": "Progress",
+      "by": "by {{name}}"
+    },
+    "cancel": {
+      "open": "Cancel booking",
+      "title": "Cancel booking {{code}}",
+      "message": "Cancel the booking of {{facility}} on {{date}} at {{time}}?",
+      "confirm": "Cancel booking",
+      "stale": "This booking has changed. The list was reloaded.",
+      "failed": "Could not cancel. Please try again."
+    },
     "names": { "pool": "Swimming pool", "fitness": "Fitness room", "meeting": "Meeting room", "bbq": "Barbecue area" },
     "status": {
       "booking": { "pending": "Awaiting confirmation", "confirmed": "Confirmed", "rejected": "Rejected", "cancelled": "Cancelled" },
