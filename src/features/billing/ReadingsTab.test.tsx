@@ -98,6 +98,12 @@ describe('ReadingsTab: what is shown', () => {
     expect(within(rowOf(unit.code)).getByText('ยังไม่จด')).toBeInTheDocument()
   })
 
+  it('keeps the visually hidden header text inside the scrolling box (otherwise it widens the whole page on a phone)', async () => {
+    await setup()
+    const box = screen.getAllByRole('table')[0].parentElement as HTMLElement
+    expect(box).toHaveClass('overflow-x-auto', 'relative')
+  })
+
   it('says so, and disables issuing, when no unit is billed in the period', async () => {
     await setup({ period: '2020-01' })
     expect(screen.getByText('ไม่มีห้องที่ถูกเรียกเก็บในรอบนี้')).toBeInTheDocument()

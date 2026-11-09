@@ -182,7 +182,7 @@ function ReadingsTable({ period }: { period: Period }) {
       {rows.length === 0 ? (
         <p className="mt-4 rounded-lg border border-[#e2e8f0] px-4 py-8 text-center text-sm text-on-surface-variant">{t('billing.readings.empty')}</p>
       ) : (
-        <div className="mt-4 overflow-x-auto rounded-lg border border-[#e2e8f0] bg-surface-container-lowest">
+        <div className="relative mt-4 overflow-x-auto rounded-lg border border-[#e2e8f0] bg-surface-container-lowest">
           <table ref={tableRef} className="w-full border-collapse text-sm">
             <thead>
               <tr className="h-10 border-b border-[#e2e8f0] bg-[#f8fafc] text-left">
@@ -209,7 +209,7 @@ function ReadingsTable({ period }: { period: Period }) {
                 const rowMessage = row.lockedKey ?? rowError?.reading ?? rowError?.unitId ?? rowError?.period
                 return (
                   <tr key={row.unit.id} data-unit={row.unit.id} className="border-b border-[#f1f5f9] align-top last:border-b-0">
-                    <th scope="row" className="px-3 py-2 text-left font-semibold">{row.unit.code}</th>
+                    <th scope="row" className="whitespace-nowrap px-3 py-2 text-left font-semibold">{row.unit.code}</th>
                     <td className="px-3 py-2">{row.lease.tenantName}</td>
                     <td className="px-3 py-2">{input(row, 'water', 'Prev')}</td>
                     <td className="px-3 py-2">{input(row, 'water', 'Curr')}</td>
