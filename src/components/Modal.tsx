@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next'
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
+/** The open modals, the last one on top. Only the top one reacts to the keyboard. */
+const openModals: object[] = []
+
 interface Props {
   open: boolean
   title: string
@@ -24,8 +27,11 @@ export default function Modal({ open, title, onClose, children }: Props) {
   useEffect(() => {
     if (!open) return
     const opener = document.activeElement as HTMLElement | null
+    const me = {}
+    openModals.push(me)
     dialogRef.current?.focus()
     const onKey = (e: KeyboardEvent) => {
+      if (openModals[openModals.length - 1] !== me) return // another dialog is on top of this one
       if (e.key === 'Escape') {
         onCloseRef.current()
         return
@@ -57,6 +63,7 @@ export default function Modal({ open, title, onClose, children }: Props) {
     document.addEventListener('keydown', onKey)
     return () => {
       document.removeEventListener('keydown', onKey)
+      openModals.splice(openModals.indexOf(me), 1)
       opener?.focus()
     }
   }, [open])

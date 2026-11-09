@@ -5,40 +5,25 @@ import { useAuth } from '../auth/useAuth'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
 import { formatDate } from '../lib/format'
-import { useBilling } from '../billing/useBilling'
-import type { AppNotification } from '../billing/types'
+import { useNotifications, type AppNotice } from '../notifications/useNotifications'
 
-/** The tenant's bell: unread count of the signed-in phone number and the list of notifications. */
+/** The bell of every role: unread count and the list of notices (invoices and repairs together). */
 export default function NotificationBell() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language === 'en' ? 'en' : 'th'
   const { user } = useAuth()
-  const { data, markRead, markAllRead } = useBilling()
+  const { notices, unread, markAllRead } = useNotifications()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
-  if (user?.role !== 'tenant') return null
+  if (!user) return null
 
-  const mine = data.notifications
-    .filter((n) => n.recipientPhone === user.phone)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
-  const unread = mine.filter((n) => !n.read).length
   const label = unread > 0 ? t('billing.notifications.bellUnread', { count: unread }) : t('billing.notifications.bell')
 
-  const wording = (n: AppNotification): { text: string; reason?: string } => {
-    const invoice = data.invoices.find((i) => i.id === n.invoiceId)
-    const number = invoice?.number ?? ''
-    const text = t(`billing.notifications.${n.type}`, { number })
-    if (n.type !== 'slipRejected') return { text }
-    // older notifications (stored before the reason was kept on them) fall back to the invoice's latest rejection
-    const reason = n.reason ?? invoice?.slips.filter((s) => s.status === 'rejected').at(-1)?.rejectReason
-    return { text, reason }
-  }
-
-  const go = (n: AppNotification) => {
+  const go = (n: AppNotice) => {
     setOpen(false)
-    navigate(`/tenant/billing?invoice=${n.invoiceId}`)
-    if (!n.read) markRead(n.id).catch(() => {})
+    navigate(n.to)
+    if (!n.read) n.markRead().catch(() => {})
   }
 
   return (
@@ -65,20 +50,20 @@ export default function NotificationBell() {
 
       {open && (
         <Modal open title={t('billing.notifications.title')} onClose={() => setOpen(false)}>
-          {mine.length === 0 ? (
+          {notices.length === 0 ? (
             <p className="py-6 text-center text-sm text-on-surface-variant">{t('billing.notifications.empty')}</p>
           ) : (
             <>
               <div className="mb-3 flex justify-end">
-                <Button variant="secondary" className="h-8 px-3" disabled={unread === 0} onClick={() => markAllRead(user.phone).catch(() => {})}>
+                <Button variant="secondary" className="h-8 px-3" disabled={unread === 0} onClick={() => markAllRead().catch(() => {})}>
                   {t('billing.notifications.markAll')}
                 </Button>
               </div>
               <ul className="flex flex-col gap-1">
-                {mine.map((n) => {
-                  const { text, reason } = wording(n)
+                {notices.map((n) => {
+                  const { text, reason } = n
                   return (
-                    <li key={n.id}>
+                    <li key={n.key}>
                       <button
                         type="button"
                         onClick={() => go(n)}

@@ -270,6 +270,110 @@
       "leaseEndInPast": "The end date cannot be before today: the lease would expire and could no longer be edited. Use \"Cancel lease\" instead."
     }
   },
+  "maintenance": {
+    "notifications": {
+      "requestCreated": "New repair request {{code}}, unit {{unit}}",
+      "assigned": "You were assigned job {{code}}",
+      "statusChanged": "Repair {{code}} is now “{{status}}”"
+    },
+    "technician": {
+      "empty": "No jobs have been assigned to you yet",
+      "openJob": "Open job {{code}}",
+      "start": "Start repair",
+      "finish": "Repair done",
+      "updateTitle": "Update job {{code}}",
+      "updateMessage": "Change the status to “{{status}}”",
+      "note": "Note (optional)",
+      "stale": "This job was already updated or is not yours. The list was reloaded.",
+      "failed": "Could not complete the action. Please try again."
+    },
+    "juristic": {
+      "cards": {
+        "waiting": "Awaiting assignment",
+        "assigned": "Assigned requests",
+        "inProgress": "Requests in progress",
+        "done": "Finished requests"
+      },
+      "filter": "Status",
+      "filterAll": "All",
+      "empty": "No repair requests yet",
+      "emptyFiltered": "No requests match this filter",
+      "viewDetail": "View details {{code}}",
+      "openDetail": "Details",
+      "columns": { "code": "Code", "unit": "Unit", "tenant": "Requested by", "category": "Category", "title": "Title", "technician": "Technician", "status": "Status", "date": "Date" },
+      "assign": "Assign technician",
+      "reassign": "Change technician",
+      "assignTitle": "Assign {{code}}",
+      "technician": "Technician",
+      "chooseTechnician": "Choose a technician",
+      "assignConfirm": "Assign",
+      "stale": "The status of this request has changed. The list was reloaded.",
+      "notFound": "This request or technician no longer exists",
+      "failed": "Could not complete the action. Please try again."
+    },
+    "loading": "Loading repair data…",
+    "loadFailed": "Could not load repair data. Try refreshing the page.",
+    "tenant": {
+      "new": "New repair request",
+      "empty": "No repair requests yet",
+      "noLease": "This account has no active lease, so a repair request cannot be made (the account's phone number must match the number on the lease).",
+      "openRequest": "Open repair request {{code}}"
+    },
+    "form": {
+      "title": "New repair request",
+      "category": "Category",
+      "choose": "Choose a category",
+      "subject": "Title",
+      "description": "Description",
+      "photos": "Photos (1–3, up to 10 MB each)",
+      "removePhoto": "Remove photo {{name}}",
+      "submit": "Send request",
+      "photoUnsupported": "{{name}} is not supported. Try a JPG or PNG file.",
+      "tooMany": "You can attach at most 3 photos",
+      "noLease": "This account has no active lease, so a repair request cannot be made",
+      "storageFailed": "Could not save because the browser storage is full. Try fewer photos or remove old data.",
+      "failed": "Could not send the request. Please try again."
+    },
+    "detail": {
+      "title": "Repair {{code}}",
+      "unit": "Unit",
+      "tenant": "Requested by",
+      "category": "Category",
+      "status": "Status",
+      "createdAt": "Date",
+      "technician": "Technician",
+      "none": "Not assigned yet",
+      "description": "Description",
+      "photos": "Photos",
+      "viewPhoto": "View photo larger: {{name}}",
+      "large": "{{name}} (large)",
+      "timeline": "Progress",
+      "by": "by {{name}}"
+    },
+    "category": {
+      "electrical": "Electrical",
+      "plumbing": "Plumbing",
+      "airConditioning": "Air conditioning",
+      "furniture": "Furniture and fittings",
+      "other": "Other"
+    },
+    "status": {
+      "waiting": "Awaiting assignment",
+      "assigned": "Assigned",
+      "inProgress": "In progress",
+      "done": "Done"
+    },
+    "errors": {
+      "category": "Please choose a category",
+      "title": "Please enter a title (up to 80 characters)",
+      "description": "Please enter a description (up to 1,000 characters)",
+      "photos": "Please attach at least 1 photo (at most 3)",
+      "photoFile": "A photo must be a JPG, PNG or WebP file of up to 10 MB",
+      "technician": "Please choose a technician",
+      "incomplete": "Please fill in the form and attach the photos",
+      "note": "The note must be 300 characters or fewer"
+    }
+  },
   "billing": {
     "notifications": {
       "title": "Notifications",

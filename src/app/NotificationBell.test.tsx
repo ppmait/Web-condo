@@ -2,9 +2,12 @@ import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useLocation } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
-import { DEMO_TENANT_PHONE } from '../auth/demoAccounts'
+import { DEMO_TECH_PHONE, DEMO_TENANT_PHONE } from '../auth/demoAccounts'
 import i18n from '../i18n'
 import { BILLING_KEY, createLocalBillingApi } from '../billing/localBillingApi'
+import { createLocalMaintenanceApi, MAINTENANCE_KEY } from '../maintenance/localMaintenanceApi'
+import { makeMaintenanceSeed } from '../maintenance/seed'
+import type { MaintenanceData } from '../maintenance/types'
 import { invoiceStatus, tenantInvoices } from '../billing/rules'
 import { makeBillingSeed } from '../billing/seed'
 import type { AppNotification, BillingData } from '../billing/types'
@@ -24,13 +27,19 @@ function LocationProbe() {
   return <span data-testid="location">{pathname + search}</span>
 }
 
-/** Puts sample property data and billing data (changed by `edit`) into localStorage, as another tab or an earlier visit would. */
-function seedStorage(edit: (data: BillingData) => void = () => {}) {
+/**
+ * Puts sample property, billing and maintenance data into localStorage, as another tab or an earlier visit would.
+ * `edit` changes the billing data; the maintenance notifications start empty so the billing tests count only billing.
+ */
+function seedStorage(edit: (data: BillingData) => void = () => {}, editMaintenance: (data: MaintenanceData) => void = (d) => void (d.notifications = [])) {
   const property = makeSeed(today)
   const data = makeBillingSeed(property, today)
   edit(data)
+  const repairs = makeMaintenanceSeed(property, today)
+  editMaintenance(repairs)
   localStorage.setItem(PROPERTY_KEY, JSON.stringify(property))
   localStorage.setItem(BILLING_KEY, JSON.stringify(data))
+  localStorage.setItem(MAINTENANCE_KEY, JSON.stringify(repairs))
   return data
 }
 
@@ -71,11 +80,10 @@ describe('NotificationBell: who sees it and the count', () => {
   it.each([
     ['juristic', '/juristic/billing'],
     ['technician', '/technician/jobs'],
-  ] as const)('is not shown to the %s', async (role, path) => {
+  ] as const)('is shown to the %s too', async (role, path) => {
     seedStorage()
     await open(role, path)
-    await screen.findByRole('button', { name: 'ออกจากระบบ' })
-    expect(screen.queryByRole('button', { name: /การแจ้งเตือน/ })).not.toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /การแจ้งเตือน/ })).toBeInTheDocument()
   })
 
   it('shows no number when nothing is unread, and says there are no notifications in the list', async () => {
@@ -230,5 +238,83 @@ describe('NotificationBell: live updates, keyboard and language', () => {
     const dialog = screen.getByRole('dialog', { name: 'Notifications' })
     expect(within(dialog).getByRole('button', { name: 'Mark all as read' })).toBeInTheDocument()
     expect(within(dialog).getAllByRole('listitem')[0]).toHaveTextContent(/Invoice .* issued/)
+  })
+})
+
+describe('NotificationBell: repair notices', () => {
+  const property = makeSeed(today)
+  const repairs = makeMaintenanceSeed(property, today)
+  const codeOf = (id: string) => repairs.requests.find((r) => r.id === id)!
+  const newest = (recipient: string) =>
+    repairs.notifications.filter((n) => n.recipient === recipient && !n.read).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
+
+  it('adds the tenant’s repair notices to the billing ones in one count and one list', async () => {
+    const data = seedStorage(undefined, () => {})
+    const unread = mine(data).filter((n) => !n.read).length + repairs.notifications.filter((n) => n.recipient === DEMO_TENANT_PHONE && !n.read).length
+    await open()
+    expect(within(await screen.findByRole('button', { name: /การแจ้งเตือน/ })).getByText(String(unread))).toBeInTheDocument()
+  })
+
+  it('opens the request from a tenant’s repair notice: goes to ?request=, shows the request, marks it read', async () => {
+    seedStorage(undefined, () => {})
+    const target = newest(DEMO_TENANT_PHONE).find((n) => n.type === 'statusChanged')!
+    const request = codeOf(target.requestId)
+    await open()
+    await userEvent.click(await screen.findByRole('button', { name: /การแจ้งเตือน/ }))
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: new RegExp(`งานซ่อม ${request.code} เปลี่ยนเป็น “${{ waiting: 'รอการมอบหมาย', assigned: 'มอบหมายแล้ว', inProgress: 'กำลังซ่อม', done: 'เสร็จสิ้น' }[target.status!]}”`) }))
+    expect(await screen.findByRole('dialog', { name: `แจ้งซ่อม ${request.code}` })).toBeInTheDocument()
+    expect(screen.getByTestId('location').textContent).toBe(`/tenant/maintenance?request=${request.id}`)
+    const stored = JSON.parse(localStorage.getItem(MAINTENANCE_KEY) as string) as MaintenanceData
+    expect(stored.notifications.find((n) => n.id === target.id)!.read).toBe(true)
+  })
+
+  it('shows the juristic office the new requests, and opens the one they press', async () => {
+    seedStorage(undefined, () => {})
+    const unread = newest('role:juristic')
+    expect(unread.length).toBeGreaterThan(0)
+    const request = codeOf(unread[0].requestId)
+    await open('juristic', '/juristic/billing')
+    const button = await screen.findByRole('button', { name: /การแจ้งเตือน/ })
+    expect(within(button).getByText(String(unread.length))).toBeInTheDocument()
+    await userEvent.click(button)
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: new RegExp(`มีแจ้งซ่อมใหม่ ${request.code} ห้อง ${request.unitCode}`) }))
+    expect(await screen.findByRole('dialog', { name: `แจ้งซ่อม ${request.code}` })).toBeInTheDocument()
+    expect(screen.getByTestId('location').textContent).toBe(`/juristic/maintenance?request=${request.id}`)
+  })
+
+  it('shows a technician the jobs given to them, and opens the one they press', async () => {
+    seedStorage(undefined, () => {})
+    const unread = newest(DEMO_TECH_PHONE)
+    expect(unread.length).toBeGreaterThan(0)
+    const request = codeOf(unread[0].requestId)
+    await open('technician', '/technician/jobs')
+    await userEvent.click(await screen.findByRole('button', { name: /การแจ้งเตือน/ }))
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: new RegExp(`ได้รับมอบหมายงาน ${request.code}`) }))
+    expect(await screen.findByRole('dialog', { name: `แจ้งซ่อม ${request.code}` })).toBeInTheDocument()
+    expect(screen.getByTestId('location').textContent).toBe(`/technician/jobs?request=${request.id}`)
+  })
+
+  it('marks the juristic office’s notices read with "mark all", leaving the rest', async () => {
+    seedStorage(undefined, () => {})
+    await open('juristic', '/juristic/billing')
+    await userEvent.click(await screen.findByRole('button', { name: /การแจ้งเตือน/ }))
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'อ่านทั้งหมด' }))
+    await waitFor(() => expect(screen.getByRole('button', { name: 'การแจ้งเตือน' })).toBeInTheDocument())
+    const stored = JSON.parse(localStorage.getItem(MAINTENANCE_KEY) as string) as MaintenanceData
+    expect(stored.notifications.filter((n) => n.recipient === 'role:juristic').every((n) => n.read)).toBe(true)
+    expect(stored.notifications.filter((n) => n.recipient !== 'role:juristic' && !n.read)).toHaveLength(repairs.notifications.filter((n) => n.recipient !== 'role:juristic' && !n.read).length)
+  })
+
+  it('shows a request made in another tab without a refresh (storage event)', async () => {
+    seedStorage(undefined, () => {})
+    const before = newest('role:juristic').length
+    await open('juristic', '/juristic/billing')
+    await screen.findByRole('button', { name: /การแจ้งเตือน/ })
+    const api = createLocalMaintenanceApi({ storage: localStorage, today: () => today })
+    await api.createRequest({ category: 'plumbing', title: 'ท่อรั่ว', description: 'น้ำรั่ว', photos: [{ name: 'a.jpg', dataUrl: 'data:image/jpeg;base64,QUJD' }], tenantPhone: DEMO_TENANT_PHONE, tenantName: 'สมชาย ผู้เช่า' })
+    await act(async () => {
+      window.dispatchEvent(new StorageEvent('storage', { key: MAINTENANCE_KEY }))
+    })
+    await waitFor(() => expect(within(screen.getByRole('button', { name: /การแจ้งเตือน/ })).getByText(String(before + 1))).toBeInTheDocument())
   })
 })

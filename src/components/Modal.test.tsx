@@ -96,3 +96,57 @@ describe('Modal', () => {
     expect(opener).toHaveFocus()
   })
 })
+
+describe('Modal stacked on another Modal', () => {
+  function Stack() {
+    const [inner, setInner] = useState(false)
+    const [outer, setOuter] = useState(true)
+    return (
+      <Modal open={outer} title="ด้านนอก" onClose={() => setOuter(false)}>
+        <button type="button" onClick={() => setInner(true)}>
+          เปิดด้านใน
+        </button>
+        <Modal open={inner} title="ด้านใน" onClose={() => setInner(false)}>
+          <button type="button">ปุ่มแรก</button>
+          <button type="button">ปุ่มสอง</button>
+        </Modal>
+      </Modal>
+    )
+  }
+
+  it('closes only the top one on Escape, and the one below on the next Escape', async () => {
+    const user = userEvent.setup()
+    render(<Stack />)
+    await user.click(screen.getByRole('button', { name: 'เปิดด้านใน' }))
+    expect(screen.getAllByRole('dialog')).toHaveLength(2)
+    await user.keyboard('{Escape}')
+    expect(screen.getAllByRole('dialog')).toHaveLength(1)
+    expect(screen.getByRole('dialog', { name: 'ด้านนอก' })).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('keeps Tab inside the top one and lets it reach every control', async () => {
+    const user = userEvent.setup()
+    render(<Stack />)
+    await user.click(screen.getByRole('button', { name: 'เปิดด้านใน' }))
+    const inner = screen.getByRole('dialog', { name: 'ด้านใน' })
+    const reached = new Set<string>()
+    for (let i = 0; i < 6; i++) {
+      await user.tab()
+      expect(inner.contains(document.activeElement)).toBe(true)
+      reached.add(document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.textContent ?? '')
+    }
+    expect(reached.has('ปุ่มแรก') && reached.has('ปุ่มสอง')).toBe(true)
+  })
+
+  it('gives the focus back to the dialog below when the top one closes', async () => {
+    const user = userEvent.setup()
+    render(<Stack />)
+    await user.click(screen.getByRole('button', { name: 'เปิดด้านใน' }))
+    await user.keyboard('{Escape}')
+    expect(screen.getByRole('button', { name: 'เปิดด้านใน' })).toHaveFocus()
+    await user.tab()
+    expect(screen.getByRole('dialog', { name: 'ด้านนอก' }).contains(document.activeElement)).toBe(true)
+  })
+})

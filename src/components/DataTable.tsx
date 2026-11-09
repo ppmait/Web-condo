@@ -21,7 +21,7 @@ export default function DataTable<T>({ columns, rows, rowKey, emptyText }: Props
   const alignClass = (c: Column<T>) => (c.numeric || c.align === 'right' ? 'text-right' : 'text-left')
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-[#e2e8f0] bg-surface-container-lowest">
+    <div className="relative overflow-x-auto rounded-lg border border-[#e2e8f0] bg-surface-container-lowest">
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="h-10 border-b border-[#e2e8f0] bg-[#f8fafc]">
