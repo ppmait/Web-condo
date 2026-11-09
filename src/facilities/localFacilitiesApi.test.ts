@@ -557,3 +557,48 @@ describe('a failure is not cached', () => {
     expect((await api.load()).bookings.length).toBeGreaterThan(0)
   })
 })
+
+describe('a tab that could not save once must not hide what other tabs save later', () => {
+  it('sees the booking another tab made after space was freed, and does not overwrite it with its own', async () => {
+    const storage = new FullStorage()
+    const property = makeProperty()
+    const a = make(storage, property)
+    storage.full = true
+    await a.load() // the first load cannot save its sample data: it lives in this tab's memory for now
+    storage.full = false
+    const b = make(storage, property)
+    const data = await b.load()
+    const meeting = facility(data, 'meeting').id
+    const fromB = await b.createBooking(request(meeting, { date: day(9), startHour: 8, endHour: 9 }))
+    expect((await a.load()).bookings.some((x) => x.id === fromB.id)).toBe(true)
+    const fromA = await a.createBooking(request(meeting, { date: day(10), startHour: 8, endHour: 9, tenantPhone: '0810000002' }))
+    const stored = (await b.load()).bookings.map((x) => x.id)
+    expect(stored).toContain(fromB.id)
+    expect(stored).toContain(fromA.id)
+  })
+})
+
+describe('a clock that moves back must not make the stored data invalid', () => {
+  const at = (date: string, storage: Storage, property: PropertyApi) => createLocalFacilitiesApi({ storage, today: () => date, property })
+
+  it('keeps every booking and parcel when a decision, a cancellation or a pickup is made on an earlier day than the last entry', async () => {
+    const storage = new MemoryStorage()
+    const property = makeProperty()
+    const later = at(day(2), storage, property)
+    const data = await later.load()
+    const meeting = facility(data, 'meeting').id
+    const made = await later.createBooking(request(meeting, { date: day(12), startHour: 9, endHour: 10 }))
+    const parcel = await later.registerParcel({ unitId: activeLeases().find((l) => l.tenantPhone === DEMO_TENANT_PHONE)!.unitId, carrier: 'Kerry', trackingNo: '', location: 'locker' }, 'x')
+    const earlier = at(day(1), storage, property) // the clock went back one day
+    const decided = await earlier.decideBooking(made.id, 'confirmed', '', 'สมหญิง นิติบุคคล')
+    expect(decided.history.at(-1)!.at).toBe(day(2)) // never earlier than the entry before it
+    const picked = await earlier.markPickedUp(parcel.id, '', 'x')
+    expect(picked.history.at(-1)!.at).toBe(day(2))
+    const cancelled = await earlier.cancelBooking(made.id, DEMO_TENANT_PHONE)
+    expect(cancelled.history.at(-1)!.at).toBe(day(2))
+    const after = await earlier.load()
+    expect(after.bookings.some((b) => b.id === made.id)).toBe(true)
+    expect(after.parcels.some((p) => p.id === parcel.id)).toBe(true)
+    expect(after.bookings.length).toBe(data.bookings.length + 1) // nothing was reseeded
+  })
+})

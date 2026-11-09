@@ -214,6 +214,12 @@ function invalid(errors: FieldErrors): never {
   throw new FacilitiesError('invalid_input', errors)
 }
 
+/** The day to write on a new history entry: today, but never earlier than the entry before it (a clock may move back). */
+const stamp = (history: { at: string }[], day: string): string => {
+  const last = history.at(-1)?.at ?? day
+  return last > day ? last : day
+}
+
 /** The lease in force today: not cancelled, started, not ended; the one that started last when there are several. */
 function activeLease(property: PropertyData, day: string, match: (l: Lease) => boolean): Lease | undefined {
   return property.leases
@@ -273,7 +279,9 @@ export function createLocalFacilitiesApi(opts: Options = {}): FacilitiesApi {
   /** The freshest data. Call it synchronously right before changing anything, after the property data was loaded. */
   const fresh = (prop: PropertyData): FacilitiesData => {
     const { readable, text } = read()
-    if (readable && !(persistFailed && memory)) {
+    if (readable) {
+      // storage is the truth whenever it holds valid data, even if this tab once failed to save: another tab may have
+      // written since, and a stale copy in memory must never hide or overwrite that
       try {
         const parsed: unknown = JSON.parse(text ?? 'null')
         if (isFacilitiesData(parsed, prop)) {
@@ -283,6 +291,8 @@ export function createLocalFacilitiesApi(opts: Options = {}): FacilitiesApi {
       } catch {
         // not JSON: untrusted
       }
+      // nothing valid in storage: keep working from memory only if this tab could not save (the storage never got it)
+      if (persistFailed && memory && isFacilitiesData(memory, prop)) return memory
       return seed(prop)
     }
     return memory && isFacilitiesData(memory, prop) ? memory : seed(prop)
@@ -352,7 +362,7 @@ export function createLocalFacilitiesApi(opts: Options = {}): FacilitiesApi {
       if (booking.tenantPhone !== actorPhone.trim()) throw new FacilitiesError('not_owner')
       if (!canCancel(booking, today())) throw new FacilitiesError('invalid_transition')
       booking.status = 'cancelled'
-      booking.history.push({ status: 'cancelled', at: today(), note: '', byName: booking.tenantName })
+      booking.history.push({ status: 'cancelled', at: stamp(booking.history, today()), note: '', byName: booking.tenantName })
       notify(data, 'bookingCancelled', booking.id, 'role:juristic')
       return commit(data, booking)
     },
@@ -365,7 +375,7 @@ export function createLocalFacilitiesApi(opts: Options = {}): FacilitiesApi {
       const booking = findBooking(data, bookingId)
       if (!canDecide(booking, today())) throw new FacilitiesError('invalid_transition')
       booking.status = decision
-      booking.history.push({ status: decision, at: today(), note: reason.trim(), byName: actorName })
+      booking.history.push({ status: decision, at: stamp(booking.history, today()), note: reason.trim(), byName: actorName })
       notify(data, 'bookingDecided', booking.id, booking.tenantPhone, decision)
       return commit(data, booking)
     },
@@ -422,7 +432,7 @@ export function createLocalFacilitiesApi(opts: Options = {}): FacilitiesApi {
       if (!parcel) throw new FacilitiesError('not_found')
       if (parcel.status !== 'waiting') throw new FacilitiesError('invalid_transition')
       parcel.status = 'pickedUp'
-      parcel.history.push({ status: 'pickedUp', at: today(), note: note.trim(), byName: actorName })
+      parcel.history.push({ status: 'pickedUp', at: stamp(parcel.history, today()), note: note.trim(), byName: actorName })
       return commit(data, parcel)
     },
 

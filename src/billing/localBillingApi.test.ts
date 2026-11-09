@@ -9,6 +9,14 @@ import { billable, invoiceStatus, needsReceipt } from './rules'
 import { makeBillingSeed } from './seed'
 import { BillingError, type BillingApi, type BillingData, type Invoice, type MeterReadingInput } from './types'
 
+class FullStorage extends MemoryStorage {
+  full = false
+  setItem(key: string, value: string) {
+    if (this.full) throw new Error('QuotaExceededError')
+    super.setItem(key, value)
+  }
+}
+
 const TODAY = '2026-11-08'
 const CURRENT = periodOf(TODAY)
 const PREVIOUS = addMonths(CURRENT, -1)
@@ -505,5 +513,25 @@ describe('a failure is not cached', () => {
     const api = createLocalBillingApi({ storage: new MemoryStorage(), today: () => TODAY, property: flaky })
     await expect(api.load()).rejects.toThrow('property down')
     expect((await api.load()).invoices.length).toBeGreaterThan(0)
+  })
+})
+
+describe('a tab that could not save once must not hide what other tabs save later', () => {
+  it('sees the rates another tab saved after space was freed, and does not overwrite them with its own change', async () => {
+    const storage = new FullStorage()
+    const property = makeProperty()
+    const a = make(storage, property)
+    storage.full = true
+    await a.load() // the first load cannot save its sample data: it lives in this tab's memory for now
+    storage.full = false
+    const b = make(storage, property)
+    await b.saveRates({ water: 25, electric: 9, common: 70 })
+    expect((await a.load()).rates.water).toBe(25)
+    const data = await a.load()
+    const target = data.notifications.find((n) => !n.read)!
+    await a.markRead(target.id)
+    const stored = await b.load()
+    expect(stored.rates.water).toBe(25)
+    expect(stored.notifications.find((n) => n.id === target.id)!.read).toBe(true)
   })
 })

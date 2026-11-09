@@ -416,3 +416,44 @@ describe('a failure is not cached', () => {
     expect((await api.load()).requests.length).toBeGreaterThan(0)
   })
 })
+
+describe('a tab that could not save once must not hide what other tabs save later', () => {
+  it('sees the request another tab made after space was freed, and does not overwrite it with its own', async () => {
+    const storage = new FullStorage()
+    const property = makeProperty()
+    const a = make(storage, property)
+    storage.full = true
+    await a.load() // the first load cannot save its sample data: it lives in this tab's memory for now
+    storage.full = false
+    const b = make(storage, property)
+    const fromB = await b.createRequest(input({ title: 'จากแท็บ B' }))
+    expect((await a.load()).requests.some((r) => r.id === fromB.id)).toBe(true)
+    const data = await a.load()
+    const waiting = byStatus(data, 'waiting')
+    await a.assign(waiting.id, tech(data).id, 'x')
+    const stored = await b.load()
+    expect(stored.requests.some((r) => r.id === fromB.id)).toBe(true)
+    expect(stored.requests.find((r) => r.id === waiting.id)!.status).toBe('assigned')
+  })
+})
+
+describe('a clock that moves back must not make the stored data invalid', () => {
+  const at = (date: string, storage: Storage, property: PropertyApi) => createLocalMaintenanceApi({ storage, today: () => date, property })
+
+  it('keeps every request when an assignment or a status change is made on an earlier day than the last entry', async () => {
+    const storage = new MemoryStorage()
+    const property = makeProperty()
+    const later = at('2026-11-10', storage, property)
+    const data = await later.load()
+    const made = await later.createRequest(input())
+    const earlier = at('2026-11-09', storage, property) // the clock went back one day
+    const t = tech(data)
+    const assigned = await earlier.assign(made.id, t.id, 'สมหญิง นิติบุคคล')
+    expect(assigned.history.at(-1)!.at).toBe('2026-11-10')
+    const started = await earlier.updateStatus(made.id, 'inProgress', '', actor(t.name, t.phone))
+    expect(started.history.at(-1)!.at).toBe('2026-11-10')
+    const after = await earlier.load()
+    expect(after.requests.some((r) => r.id === made.id)).toBe(true)
+    expect(after.requests.length).toBe(data.requests.length + 1) // nothing was reseeded
+  })
+})
