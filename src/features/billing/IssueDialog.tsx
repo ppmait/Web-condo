@@ -6,6 +6,7 @@ import Modal from '../../components/Modal'
 import { formatPeriod } from '../../lib/format'
 import type { IssueResult, Period } from '../../billing/types'
 import { useBilling } from '../../billing/useBilling'
+import { useProperty } from '../../property/useProperty'
 
 interface Props {
   period: Period
@@ -21,6 +22,7 @@ export default function IssueDialog({ period, readyCount, missing, onClose }: Pr
   const { t, i18n } = useTranslation()
   const lang = i18n.language === 'en' ? 'en' : 'th'
   const { issueInvoices } = useBilling()
+  const { data: property } = useProperty()
   const [pending, setPending] = useState(false)
   const [failed, setFailed] = useState(false)
   const [result, setResult] = useState<IssueResult | null>(null)
@@ -45,6 +47,16 @@ export default function IssueDialog({ period, readyCount, missing, onClose }: Pr
     return (
       <Modal open title={t('billing.issue.resultTitle')} onClose={onClose}>
         <p className="text-sm">{t('billing.issue.result', { issued: result.issued.length, skipped: result.skipped.length })}</p>
+        {(['noReading', 'exists'] as const).map((reason) => {
+          const codes = result.skipped
+            .filter((x) => x.reason === reason)
+            .map((x) => property.units.find((u) => u.id === x.unitId)?.code ?? '?')
+          return codes.length > 0 ? (
+            <p key={reason} className="mt-2 text-sm text-on-surface-variant">
+              {t(`billing.issue.skipped.${reason}`, { units: codes.join(', ') })}
+            </p>
+          ) : null
+        })}
         <div className="mt-6 flex justify-end">
           <Button onClick={onClose}>{t('common.close')}</Button>
         </div>

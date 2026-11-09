@@ -114,11 +114,11 @@ describe('NotificationBell: the list', () => {
     seedStorage((d) => {
       const [a, b, c] = demoInvoices(d).filter((i) => invoiceStatus(i, today) !== 'paid')
       const rejected = d.invoices.find((i) => i.id === (b ?? a).id)!
-      rejected.slips = [{ id: 's-reject-1', submittedAt: today, fileName: 'x.png', fileSize: 100, status: 'rejected', reviewedAt: today, rejectReason: 'ยอดไม่ตรง' }]
+      rejected.slips = [{ id: 's-reject-1', submittedAt: today, fileName: 'x.png', fileSize: 100, status: 'rejected', reviewedAt: today, rejectReason: 'เหตุผลของสลิปใหม่' }]
       numbers = [a.number, rejected.number, (c ?? a).number]
       withMine([
         note('n-1', 'invoiceIssued', a.id, '2026-01-10', true),
-        note('n-2', 'slipRejected', rejected.id, '2026-01-12'),
+        { ...note('n-2', 'slipRejected', rejected.id, '2026-01-12'), reason: 'ยอดไม่ตรง' },
         note('n-3', 'receiptIssued', (c ?? a).id, '2026-01-15'),
       ])(d)
     })
@@ -129,7 +129,8 @@ describe('NotificationBell: the list', () => {
     expect(items[0]).toHaveTextContent(`ออกใบเสร็จของใบแจ้งหนี้ ${numbers[2]} แล้ว`)
     expect(items[0]).toHaveTextContent('15 ม.ค. 2569')
     expect(items[1]).toHaveTextContent(`สลิปของใบแจ้งหนี้ ${numbers[1]} ถูกปฏิเสธ`)
-    expect(items[1]).toHaveTextContent('เหตุผล: ยอดไม่ตรง')
+    expect(items[1]).toHaveTextContent('เหตุผล: ยอดไม่ตรง') // the reason given at the time, not that of a newer rejection
+    expect(items[1]).not.toHaveTextContent('เหตุผลของสลิปใหม่')
     expect(items[2]).toHaveTextContent(`ออกใบแจ้งหนี้ ${numbers[0]} แล้ว`)
     expect(items[0]).toHaveTextContent('ใหม่')
     expect(items[2]).not.toHaveTextContent('ใหม่')

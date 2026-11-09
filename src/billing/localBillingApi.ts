@@ -7,6 +7,7 @@ import {
   buildInvoice,
   invoiceNumber,
   invoiceStatus,
+  nextReading,
   receiptNumber,
   roundBaht,
   validateRates,
@@ -107,7 +108,8 @@ function isNotification(v: unknown): v is AppNotification {
     isString(v.invoiceId) &&
     isString(v.recipientPhone) &&
     isDate(v.createdAt) &&
-    typeof v.read === 'boolean'
+    typeof v.read === 'boolean' &&
+    (v.reason === undefined || isString(v.reason))
   )
 }
 
@@ -243,8 +245,16 @@ export function createLocalBillingApi(opts: Options = {}): BillingApi {
     return invoice
   }
 
-  const notify = (data: BillingData, type: NotificationType, invoice: Invoice) =>
-    data.notifications.push({ id: newId(), type, invoiceId: invoice.id, recipientPhone: invoice.tenantPhone, createdAt: today(), read: false })
+  const notify = (data: BillingData, type: NotificationType, invoice: Invoice, reason?: string) =>
+    data.notifications.push({
+      id: newId(),
+      type,
+      invoiceId: invoice.id,
+      recipientPhone: invoice.tenantPhone,
+      createdAt: today(),
+      read: false,
+      ...(reason ? { reason } : {}),
+    })
 
   return {
     async load() {
@@ -273,6 +283,12 @@ export function createLocalBillingApi(opts: Options = {}): BillingApi {
       const saved: MeterReading = { ...input, id: existing?.id ?? newId() }
       if (existing) data.readings[data.readings.indexOf(existing)] = saved
       else data.readings.push(saved)
+      // the next period (already checked as not invoiced) continues from this reading's "after" values
+      const later = nextReading(data.readings, saved.unitId, saved.period)
+      if (later) {
+        later.waterPrev = saved.waterCurr
+        later.electricPrev = saved.electricCurr
+      }
       persist(data)
       return clone(saved)
     },
@@ -339,7 +355,7 @@ export function createLocalBillingApi(opts: Options = {}): BillingApi {
       slip.status = 'rejected'
       slip.reviewedAt = today()
       slip.rejectReason = reason.trim()
-      notify(data, 'slipRejected', invoice)
+      notify(data, 'slipRejected', invoice, slip.rejectReason)
       persist(data)
       return clone(invoice)
     },
