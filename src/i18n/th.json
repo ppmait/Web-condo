@@ -271,6 +271,11 @@
     }
   },
   "maintenance": {
+    "notifications": {
+      "requestCreated": "มีแจ้งซ่อมใหม่ {{code}} ห้อง {{unit}}",
+      "assigned": "ได้รับมอบหมายงาน {{code}}",
+      "statusChanged": "งานซ่อม {{code}} เปลี่ยนเป็น “{{status}}”"
+    },
     "technician": {
       "empty": "ยังไม่มีงานที่ได้รับมอบหมาย",
       "openJob": "เปิดงาน {{code}}",

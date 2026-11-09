@@ -271,6 +271,11 @@
     }
   },
   "maintenance": {
+    "notifications": {
+      "requestCreated": "New repair request {{code}}, unit {{unit}}",
+      "assigned": "You were assigned job {{code}}",
+      "statusChanged": "Repair {{code}} is now “{{status}}”"
+    },
     "technician": {
       "empty": "No jobs have been assigned to you yet",
       "openJob": "Open job {{code}}",
