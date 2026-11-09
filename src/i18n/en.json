@@ -271,6 +271,30 @@
     }
   },
   "maintenance": {
+    "juristic": {
+      "cards": {
+        "waiting": "Awaiting assignment",
+        "assigned": "Assigned requests",
+        "inProgress": "Requests in progress",
+        "done": "Finished requests"
+      },
+      "filter": "Status",
+      "filterAll": "All",
+      "empty": "No repair requests yet",
+      "emptyFiltered": "No requests match this filter",
+      "viewDetail": "View details {{code}}",
+      "openDetail": "Details",
+      "columns": { "code": "Code", "unit": "Unit", "tenant": "Requested by", "category": "Category", "title": "Title", "technician": "Technician", "status": "Status", "date": "Date" },
+      "assign": "Assign technician",
+      "reassign": "Change technician",
+      "assignTitle": "Assign {{code}}",
+      "technician": "Technician",
+      "chooseTechnician": "Choose a technician",
+      "assignConfirm": "Assign",
+      "stale": "The status of this request has changed. The list was reloaded.",
+      "notFound": "This request or technician no longer exists",
+      "failed": "Could not complete the action. Please try again."
+    },
     "loading": "Loading repair data…",
     "loadFailed": "Could not load repair data. Try refreshing the page.",
     "tenant": {
@@ -329,6 +353,7 @@
       "description": "Please enter a description (up to 1,000 characters)",
       "photos": "Please attach at least 1 photo (at most 3)",
       "photoFile": "A photo must be a JPG, PNG or WebP file of up to 10 MB",
+      "technician": "Please choose a technician",
       "incomplete": "Please fill in the form and attach the photos",
       "note": "The note must be 300 characters or fewer"
     }
