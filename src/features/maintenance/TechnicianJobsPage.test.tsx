@@ -4,7 +4,7 @@ import { useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { DEMO_TECH_PHONE } from '../../auth/demoAccounts'
 import i18n from '../../i18n'
-import type { MaintenanceApi, MaintenanceData, MaintenanceRequest, RequestStatus } from '../../maintenance/types'
+import { MaintenanceError, type MaintenanceApi, type MaintenanceData, type MaintenanceRequest, type RequestStatus } from '../../maintenance/types'
 import { renderApp } from '../../test/renderApp'
 import { renderMaintenance } from '../../test/renderMaintenance'
 import { makeTestMaintenance } from '../../test/testMaintenance'
@@ -185,6 +185,31 @@ describe('TechnicianJobsPage: updating a job', () => {
     expect(await within(updateDialog(r)).findByText(/งานนี้ถูกอัปเดตไปแล้ว/)).toBeInTheDocument()
     await waitFor(() => expect(within(card(r)).getByText(STATUS_TEXT.inProgress)).toBeInTheDocument())
     expect((await api.load()).requests.find((x) => x.id === r.id)!.history.filter((h) => h.status === 'inProgress')).toHaveLength(1)
+  })
+
+  it('says the storage is full when the change could not be saved, and stays open', async () => {
+    const user = userEvent.setup()
+    const { api, mine } = await setup()
+    const r = first(mine, 'assigned')
+    vi.spyOn(api, 'updateStatus').mockRejectedValueOnce(new MaintenanceError('storage_failed'))
+    await user.click(within(await openJob(r)).getByRole('button', { name: 'เริ่มซ่อม' }))
+    await user.click(within(updateDialog(r)).getByRole('button', { name: 'เริ่มซ่อม' }))
+    expect(await within(updateDialog(r)).findByText(/พื้นที่เก็บข้อมูลในเบราว์เซอร์เต็ม/)).toBeInTheDocument()
+  })
+
+  it('keeps the detail open under the update dialog: Escape closes only the dialog on top, Tab stays inside it', async () => {
+    const user = userEvent.setup()
+    const { mine } = await setup()
+    const r = first(mine, 'assigned')
+    await user.click(within(await openJob(r)).getByRole('button', { name: 'เริ่มซ่อม' }))
+    const dialog = updateDialog(r)
+    for (let i = 0; i < 4; i++) {
+      await user.tab()
+      expect(dialog.contains(document.activeElement)).toBe(true)
+    }
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog', { name: `อัปเดตงาน ${r.code}` })).not.toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: `แจ้งซ่อม ${r.code}` })).toBeInTheDocument()
   })
 
   it('shows a general message for an unexpected failure and stays open', async () => {

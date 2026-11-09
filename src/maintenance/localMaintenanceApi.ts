@@ -148,7 +148,11 @@ export function createLocalMaintenanceApi(opts: Options = {}): MaintenanceApi {
       persistFailed = true
     }
   }
-  /** Writes for real or not at all: false when the storage refuses (e.g. it is full). Memory only changes on success. */
+  /**
+ * Writes for real or not at all: false when the storage refuses (e.g. it is full). Memory only changes on success.
+ * Used for everything a person must be able to rely on (requests, assignments, status changes); reading notices is
+ * low-stakes and keeps the memory fallback. With no storage object at all there is nothing to refuse: memory is all there is.
+ */
   const persistStrict = (data: MaintenanceData): boolean => {
     try {
       storage?.setItem(MAINTENANCE_KEY, JSON.stringify(data))
@@ -234,7 +238,7 @@ export function createLocalMaintenanceApi(opts: Options = {}): MaintenanceApi {
 
     async assign(requestId, technicianId, actorName) {
       const prop = await property.load()
-      const data = fresh(prop)
+      const data = clone(fresh(prop)) // a copy: if the write fails, nothing may stay changed
       const request = findRequest(data, requestId)
       const technician = data.technicians.find((t) => t.id === technicianId)
       if (!technician) throw new MaintenanceError('not_found')
@@ -246,13 +250,13 @@ export function createLocalMaintenanceApi(opts: Options = {}): MaintenanceApi {
       request.history.push({ status: 'assigned', at: today(), note: '', byName: actorName })
       notify(data, 'assigned', request.id, technician.phone)
       if (first) notify(data, 'statusChanged', request.id, request.tenantPhone, 'assigned') // changing the technician later does not tell the tenant again
-      persist(data)
+      if (!persistStrict(data)) throw new MaintenanceError('storage_failed')
       return clone(request)
     },
 
     async updateStatus(requestId, status, note, actor: Actor) {
       const prop = await property.load()
-      const data = fresh(prop)
+      const data = clone(fresh(prop)) // a copy: if the write fails, nothing may stay changed
       const noteError = validateNote(note)
       if (noteError) invalid({ note: noteError })
       const request = findRequest(data, requestId)
@@ -264,7 +268,7 @@ export function createLocalMaintenanceApi(opts: Options = {}): MaintenanceApi {
       request.status = status
       request.history.push({ status, at: today(), note: note.trim(), byName: actor.name })
       notify(data, 'statusChanged', request.id, request.tenantPhone, status)
-      persist(data)
+      if (!persistStrict(data)) throw new MaintenanceError('storage_failed')
       return clone(request)
     },
 

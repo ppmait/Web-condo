@@ -40,6 +40,8 @@ export default function AssignDialog({ request, onClose }: { request: Maintenanc
       if (err instanceof MaintenanceError && err.code === 'invalid_transition') {
         setMessage(t('maintenance.juristic.stale'))
         void reload()
+      } else if (err instanceof MaintenanceError && err.code === 'storage_failed') {
+        setMessage(t('maintenance.form.storageFailed'))
       } else if (err instanceof MaintenanceError && err.code === 'not_found') {
         setMessage(t('maintenance.juristic.notFound'))
         void reload()

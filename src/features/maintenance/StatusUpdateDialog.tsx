@@ -45,6 +45,8 @@ export default function StatusUpdateDialog({ request, onClose }: { request: Main
       if (err instanceof MaintenanceError && err.code === 'invalid_input' && err.fieldErrors?.note) {
         setNoteError(err.fieldErrors.note)
         setFocusTick((n) => n + 1)
+      } else if (err instanceof MaintenanceError && err.code === 'storage_failed') {
+        setMessage(t('maintenance.form.storageFailed'))
       } else if (err instanceof MaintenanceError && (err.code === 'invalid_transition' || err.code === 'not_assigned' || err.code === 'not_found')) {
         setMessage(t('maintenance.technician.stale'))
         void reload()

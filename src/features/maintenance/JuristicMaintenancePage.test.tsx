@@ -217,11 +217,38 @@ describe('JuristicMaintenancePage: assigning a technician', () => {
     expect((await api.load()).requests.find((x) => x.id === r.id)!.assigneeId).toBe(t.id)
   })
 
-  it('shows a general message for an unexpected failure', async () => {
+  it('keeps the detail open under the assignment dialog: Escape closes only the dialog on top, Tab stays inside it', async () => {
+    const user = userEvent.setup()
+    const { data } = await setup()
+    const r = byStatus(data, 'waiting')
+    await user.click(within(await openDetail(r)).getByRole('button', { name: 'มอบหมายช่าง' }))
+    const dialog = assignDialog(r.code)
+    for (let i = 0; i < 4; i++) {
+      await user.tab()
+      expect(dialog.contains(document.activeElement)).toBe(true)
+    }
+    expect(within(dialog).getByLabelText('ช่างที่รับงาน')).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog', { name: `มอบหมายงาน ${r.code}` })).not.toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: `แจ้งซ่อม ${r.code}` })).toBeInTheDocument()
+  })
+
+  it('says the storage is full when the change could not be saved, and stays open', async () => {
     const user = userEvent.setup()
     const { api, data } = await setup()
     const r = byStatus(data, 'waiting')
     vi.spyOn(api, 'assign').mockRejectedValueOnce(new MaintenanceError('storage_failed'))
+    await user.click(within(await openDetail(r)).getByRole('button', { name: 'มอบหมายช่าง' }))
+    await user.selectOptions(within(assignDialog(r.code)).getByLabelText('ช่างที่รับงาน'), data.technicians[0].name)
+    await user.click(within(assignDialog(r.code)).getByRole('button', { name: 'มอบหมาย' }))
+    expect(await within(assignDialog(r.code)).findByText(/พื้นที่เก็บข้อมูลในเบราว์เซอร์เต็ม/)).toBeInTheDocument()
+  })
+
+  it('shows a general message for an unexpected failure', async () => {
+    const user = userEvent.setup()
+    const { api, data } = await setup()
+    const r = byStatus(data, 'waiting')
+    vi.spyOn(api, 'assign').mockRejectedValueOnce(new Error('boom'))
     await user.click(within(await openDetail(r)).getByRole('button', { name: 'มอบหมายช่าง' }))
     await user.selectOptions(within(assignDialog(r.code)).getByLabelText('ช่างที่รับงาน'), data.technicians[0].name)
     await user.click(within(assignDialog(r.code)).getByRole('button', { name: 'มอบหมาย' }))

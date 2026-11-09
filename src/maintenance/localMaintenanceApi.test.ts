@@ -372,7 +372,7 @@ describe('data that cannot be trusted', () => {
   })
 })
 
-describe('storage that fails (other than a full one when creating)', () => {
+describe('storage that fails', () => {
   const works = async (api: MaintenanceApi) => {
     const data = await api.load()
     expect(data.requests.length).toBeGreaterThan(0)
@@ -381,9 +381,29 @@ describe('storage that fails (other than a full one when creating)', () => {
     expect((await api.load()).requests.find((r) => r.id === target.id)!.status).toBe('assigned')
   }
 
-  it('works in memory when reading throws', async () => works(make(new UnreadableStorage())))
-  it('works in memory when writing throws', async () => works(make(new UnwritableStorage())))
+  it('works when reading throws', async () => works(make(new UnreadableStorage())))
   it('works with no storage at all', async () => works(make(null)))
+
+  it.each([
+    ['assigning', (api: MaintenanceApi, d: MaintenanceData) => api.assign(byStatus(d, 'waiting').id, tech(d).id, 'x')],
+    ['updating a status', (api: MaintenanceApi, d: MaintenanceData) => api.updateStatus(byStatus(d, 'assigned', DEMO_TECH_PHONE).id, 'inProgress', '', actor())],
+  ])('refuses %s when the storage cannot be written, instead of keeping the change only in memory', async (_name, run) => {
+    const api = make(new UnwritableStorage())
+    const before = await api.load()
+    expect((await failure(run(api, before)))?.code).toBe('storage_failed')
+    expect(await api.load()).toEqual(before)
+  })
+
+  it('refuses assigning when the storage became full, and works again once there is room', async () => {
+    const storage = new FullStorage()
+    const api = make(storage)
+    const before = await api.load()
+    storage.full = true
+    expect((await failure(api.assign(byStatus(before, 'waiting').id, tech(before).id, 'x')))?.code).toBe('storage_failed')
+    storage.full = false
+    expect(await api.load()).toEqual(before)
+    expect((await api.assign(byStatus(before, 'waiting').id, tech(before).id, 'x')).status).toBe('assigned')
+  })
 })
 
 describe('a failure is not cached', () => {
