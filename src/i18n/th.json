@@ -271,6 +271,23 @@
     }
   },
   "billing": {
+    "slips": {
+      "empty": "ไม่มีสลิปที่รอตรวจสอบ",
+      "file": "ไฟล์สลิป",
+      "submittedAt": "วันที่ส่ง",
+      "approve": "อนุมัติ",
+      "reject": "ปฏิเสธ",
+      "approveOf": "อนุมัติ {{number}}",
+      "rejectOf": "ปฏิเสธ {{number}}",
+      "approveTitle": "อนุมัติสลิป {{number}}",
+      "approveMessage": "ยืนยันว่าสลิปของห้อง {{unit}} ยอด {{amount}} ถูกต้อง",
+      "rejectTitle": "ปฏิเสธสลิป {{number}}",
+      "reason": "เหตุผลที่ปฏิเสธ",
+      "rejectConfirm": "ปฏิเสธสลิป",
+      "alreadyReviewed": "สลิปนี้ถูกตรวจสอบไปแล้ว",
+      "notFound": "ไม่พบสลิปนี้แล้ว",
+      "failed": "ดำเนินการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+    },
     "invoices": {
       "filter": "สถานะ",
       "filterOption": {

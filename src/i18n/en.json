@@ -271,6 +271,23 @@
     }
   },
   "billing": {
+    "slips": {
+      "empty": "No slips are waiting to be checked",
+      "file": "Slip file",
+      "submittedAt": "Sent on",
+      "approve": "Approve",
+      "reject": "Reject",
+      "approveOf": "Approve {{number}}",
+      "rejectOf": "Reject {{number}}",
+      "approveTitle": "Approve slip {{number}}",
+      "approveMessage": "Confirm that the slip for unit {{unit}} of {{amount}} is correct",
+      "rejectTitle": "Reject slip {{number}}",
+      "reason": "Reason for rejecting",
+      "rejectConfirm": "Reject slip",
+      "alreadyReviewed": "This slip has already been checked",
+      "notFound": "This slip no longer exists",
+      "failed": "Could not complete the action. Please try again."
+    },
     "invoices": {
       "filter": "Status",
       "filterOption": {
