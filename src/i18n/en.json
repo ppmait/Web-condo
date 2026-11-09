@@ -269,5 +269,195 @@
       "leaseInspectionDates": "The lease must still cover the recorded move-in date",
       "leaseEndInPast": "The end date cannot be before today: the lease would expire and could no longer be edited. Use \"Cancel lease\" instead."
     }
+  },
+  "billing": {
+    "notifications": {
+      "title": "Notifications",
+      "bell": "Notifications",
+      "bellUnread": "Notifications, {{count}} unread",
+      "empty": "No notifications",
+      "markAll": "Mark all as read",
+      "unread": "New",
+      "invoiceIssued": "Invoice {{number}} issued",
+      "slipRejected": "The slip for invoice {{number}} was rejected",
+      "receiptIssued": "Receipt for invoice {{number}} issued",
+      "reason": "Reason: {{reason}}"
+    },
+    "slips": {
+      "empty": "No slips are waiting to be checked",
+      "file": "Slip file",
+      "submittedAt": "Sent on",
+      "approve": "Approve",
+      "reject": "Reject",
+      "approveOf": "Approve {{number}}",
+      "rejectOf": "Reject {{number}}",
+      "approveTitle": "Approve slip {{number}}",
+      "approveMessage": "Confirm that the slip for unit {{unit}} of {{amount}} is correct",
+      "rejectTitle": "Reject slip {{number}}",
+      "reason": "Reason for rejecting",
+      "rejectConfirm": "Reject slip",
+      "alreadyReviewed": "This slip has already been checked",
+      "notFound": "This slip no longer exists",
+      "failed": "Could not complete the action. Please try again."
+    },
+    "invoices": {
+      "filter": "Status",
+      "filterOption": {
+        "all": "All",
+        "outstanding": "Outstanding",
+        "verifying": "Verifying slip",
+        "overdue": "Overdue",
+        "paid": "Paid",
+        "awaitingReceipt": "Receipt pending"
+      },
+      "empty": "No invoices in this period",
+      "emptyFiltered": "No invoices match this filter",
+      "viewDetail": "View details {{number}}",
+      "issueReceipt": "Issue receipt",
+      "issueReceiptOf": "Issue receipt {{number}}",
+      "receiptTitle": "Issue receipt {{number}}",
+      "receiptMessage": "Confirm issuing a receipt of {{amount}} for unit {{unit}}",
+      "receiptExists": "The receipt for this invoice has already been issued",
+      "receiptNotPayable": "A receipt cannot be issued yet because this invoice has not been paid",
+      "receiptFailed": "Could not issue the receipt. Please try again.",
+      "noSlips": "No slips yet",
+      "reason": "Reason: {{reason}}"
+    },
+    "rates": {
+      "water": "Water rate (baht per unit)",
+      "electric": "Electricity rate (baht per unit)",
+      "common": "Common fee (baht per sq.m. per month)",
+      "hint": "New rates apply to invoices issued from now on. Invoices that were already issued do not change.",
+      "save": "Save rates",
+      "saved": "Rates saved",
+      "failed": "Could not save the rates. Please try again."
+    },
+    "page": { "periodNav": "Billing period", "prev": "Previous period", "next": "Next period" },
+    "summary": {
+      "billed": "Billed this period",
+      "paid": "Paid",
+      "outstanding": "Outstanding",
+      "pendingSlips": "Slips to check",
+      "awaitingReadings": "Units awaiting readings"
+    },
+    "tabs": {
+      "label": "Billing sections",
+      "readings": "Meter readings",
+      "invoices": "Invoices",
+      "slips": "Payment slips",
+      "rates": "Rates"
+    },
+    "readings": {
+      "title": "Meter readings",
+      "empty": "No units are billed in this period",
+      "unit": "Unit",
+      "tenant": "Tenant",
+      "water": "Water",
+      "electric": "Electricity",
+      "prev": "Previous",
+      "curr": "Current",
+      "usage": "Units",
+      "amount": "Amount",
+      "common": "Common fee",
+      "status": "Status",
+      "inputLabel": "{{meter}} {{field}} unit {{unit}}",
+      "save": "Save",
+      "saveRow": "Save unit {{unit}}",
+      "failed": "Could not save. Please try again.",
+      "state": { "none": "Not read", "recorded": "Read", "invoiced": "Invoiced" }
+    },
+    "issue": {
+      "open": "Issue invoices for this period",
+      "noneReady": "No unit has a reading and is ready to be invoiced",
+      "title": "Issue invoices for {{period}}",
+      "willIssue": "{{count}} invoices will be issued",
+      "willSkip": "{{count}} units without a reading will be skipped: {{units}}",
+      "confirm": "Issue invoices",
+      "resultTitle": "Result",
+      "result": "Issued {{issued}}, skipped {{skipped}}",
+      "failed": "Could not issue the invoices. Please try again."
+    },
+    "loading": "Loading billing data…",
+    "loadFailed": "Could not load billing data. Try refreshing the page.",
+    "invoiceStatus": {
+      "paid": "Paid",
+      "verifying": "Verifying slip",
+      "overdue": "Overdue",
+      "unpaid": "Unpaid"
+    },
+    "tenant": {
+      "due": "To pay",
+      "history": "Paid invoice history",
+      "noneDue": "No invoices to pay",
+      "noInvoices": "There are no invoices for this account yet (the account's phone number must match the number on the lease).",
+      "noHistory": "No paid invoices yet"
+    },
+    "columns": {
+      "number": "Invoice no.",
+      "period": "Period",
+      "paidOn": "Paid on",
+      "total": "Total",
+      "status": "Status",
+      "receipt": "Receipt",
+      "item": "Item",
+      "calculation": "Calculation",
+      "amount": "Amount"
+    },
+    "openInvoice": "Open invoice {{number}}",
+    "openDetail": "Details",
+    "viewReceipt": "View receipt",
+    "viewReceiptOf": "View receipt {{number}}",
+    "receiptPending": "Receipt pending",
+    "dueOn": "Due {{date}}",
+    "detail": {
+      "title": "Invoice {{number}}",
+      "unit": "Unit",
+      "period": "Period",
+      "dueDate": "Due date",
+      "status": "Status",
+      "water": "Water charge",
+      "electric": "Electricity charge",
+      "common": "Common area fee",
+      "netTotal": "Net total",
+      "usage": "{{units}} units × {{rate}}",
+      "commonUsage": "{{area}} sq.m. × {{rate}}"
+    },
+    "qr": {
+      "alt": "Sample payment QR image",
+      "sample": "Sample only, not a real QR code",
+      "reference": "Reference: {{number}}"
+    },
+    "slip": {
+      "field": "Slip file (JPG or PNG, up to 5 MB)",
+      "submit": "Send slip",
+      "sent": "Slip sent, waiting for the juristic office to check it",
+      "rejected": "The previous slip was rejected: {{reason}}",
+      "history": "Slip history",
+      "status": { "pending": "Waiting", "approved": "Approved", "rejected": "Rejected" },
+      "alreadyPending": "A slip is already waiting to be checked",
+      "alreadyPaid": "This invoice has already been paid",
+      "notFound": "This invoice no longer exists",
+      "failed": "Could not send the slip. Please try again."
+    },
+    "paidAwaitingReceipt": "Paid, waiting for the juristic office to issue the receipt",
+    "receipt": {
+      "title": "Receipt",
+      "number": "Receipt no.",
+      "issuedAt": "Issued on",
+      "payer": "Paid by",
+      "sample": "Sample, not a tax document",
+      "back": "Back to the invoice"
+    },
+    "errors": {
+      "rate": "The rate must be a whole number of baht above 0",
+      "reading": "A meter reading must be a whole number, not negative",
+      "readingOrder": "The current reading cannot be below the previous one",
+      "readingPrev": "The previous reading must equal the current reading of the previous period",
+      "readingLocked": "The invoice for this unit and period is already issued, so the reading cannot be changed",
+      "readingChained": "Only the latest reading of a unit can be changed (a later period exists)",
+      "slip": "Please attach a valid payment slip file",
+      "rejectReason": "Please give a reason for rejecting",
+      "notBillable": "This unit is not billed in this period (no lease covers it)"
+    }
   }
 }

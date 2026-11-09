@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatBaht, formatDate } from './format'
+import { formatBaht, formatDate, formatFileSize, formatPeriod } from './format'
 
 describe('formatBaht', () => {
   it('formats whole baht with the ฿ sign and thousands separators', () => {
@@ -34,5 +34,30 @@ describe('formatDate', () => {
 
   it.each(['', 'abc', '2026-02-30', '2026-1-1'])('returns invalid input %j unchanged without throwing', (bad) => {
     expect(formatDate(bad, 'th')).toBe(bad)
+  })
+})
+
+describe('formatPeriod', () => {
+  it('shows the month with the Buddhist year in Thai and the Gregorian year in English', () => {
+    expect(formatPeriod('2026-11', 'th')).toBe('พฤศจิกายน 2569')
+    expect(formatPeriod('2026-11', 'en')).toBe('November 2026')
+    expect(formatPeriod('2027-01', 'th')).toBe('มกราคม 2570')
+  })
+
+  it.each(['', 'abc', '2026-13', '2026-1'])('returns invalid input %j unchanged without throwing', (bad) => {
+    expect(formatPeriod(bad, 'th')).toBe(bad)
+  })
+})
+
+describe('formatFileSize', () => {
+  it.each([
+    [0, '0 KB'],
+    [512, '1 KB'],
+    [150_000, '146 KB'],
+    [1024 * 1024, '1.0 MB'],
+    [5 * 1024 * 1024, '5.0 MB'],
+    [1536 * 1024, '1.5 MB'],
+  ])('shows %s bytes as %s', (bytes, text) => {
+    expect(formatFileSize(bytes)).toBe(text)
   })
 })

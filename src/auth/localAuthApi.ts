@@ -87,7 +87,7 @@ export function createLocalAuthApi(opts: Options = {}): AuthApi {
           username: account.username,
           fullName: account.fullName,
           email: `${account.username}@example.com`,
-          phone: '0800000000',
+          phone: account.phone,
           role: account.role,
           passwordHash: await hash(DEMO_PASSWORD),
         })
