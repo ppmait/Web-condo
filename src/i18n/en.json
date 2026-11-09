@@ -270,6 +270,32 @@
       "leaseEndInPast": "The end date cannot be before today: the lease would expire and could no longer be edited. Use \"Cancel lease\" instead."
     }
   },
+  "facilities": {
+    "names": { "pool": "Swimming pool", "fitness": "Fitness room", "meeting": "Meeting room", "bbq": "Barbecue area" },
+    "status": {
+      "booking": { "pending": "Awaiting confirmation", "confirmed": "Confirmed", "rejected": "Rejected", "cancelled": "Cancelled" },
+      "parcel": { "waiting": "Waiting for pickup", "pickedUp": "Picked up" }
+    },
+    "location": { "frontDesk": "Juristic office desk", "locker": "Locker" },
+    "errors": {
+      "incomplete": "Please fill in the form completely",
+      "facility": "Please choose a facility",
+      "date": "Choose a date from tomorrow up to 14 days ahead",
+      "time": "Choose a time inside the opening hours, at most 3 hours",
+      "people": "The number of people must be 1–5",
+      "reason": "Please give a reason (up to 300 characters)",
+      "note": "The note must be 300 characters or fewer",
+      "unit": "Please choose a unit",
+      "carrier": "Please enter the carrier (up to 40 characters)",
+      "tracking": "The tracking number must be 40 characters or fewer",
+      "location": "Please choose where the parcel is kept",
+      "noCapacity": "There is not enough room in this time slot for that many people",
+      "quotaExceeded": "Your unit has already booked 2 times this week",
+      "closed": "This facility is temporarily closed",
+      "noLease": "This account has no active lease",
+      "storageFailed": "Could not save because the browser storage is full. Try removing old data."
+    }
+  },
   "maintenance": {
     "notifications": {
       "requestCreated": "New repair request {{code}}, unit {{unit}}",
