@@ -271,6 +271,51 @@
     }
   },
   "billing": {
+    "page": { "periodNav": "Billing period", "prev": "Previous period", "next": "Next period" },
+    "summary": {
+      "billed": "Billed this period",
+      "paid": "Paid",
+      "outstanding": "Outstanding",
+      "pendingSlips": "Slips to check",
+      "awaitingReadings": "Units awaiting readings"
+    },
+    "tabs": {
+      "label": "Billing sections",
+      "readings": "Meter readings",
+      "invoices": "Invoices",
+      "slips": "Payment slips",
+      "rates": "Rates"
+    },
+    "readings": {
+      "title": "Meter readings",
+      "empty": "No units are billed in this period",
+      "unit": "Unit",
+      "tenant": "Tenant",
+      "water": "Water",
+      "electric": "Electricity",
+      "prev": "Previous",
+      "curr": "Current",
+      "usage": "Units",
+      "amount": "Amount",
+      "common": "Common fee",
+      "status": "Status",
+      "inputLabel": "{{meter}} {{field}} unit {{unit}}",
+      "save": "Save",
+      "saveRow": "Save unit {{unit}}",
+      "failed": "Could not save. Please try again.",
+      "state": { "none": "Not read", "recorded": "Read", "invoiced": "Invoiced" }
+    },
+    "issue": {
+      "open": "Issue invoices for this period",
+      "noneReady": "No unit has a reading and is ready to be invoiced",
+      "title": "Issue invoices for {{period}}",
+      "willIssue": "{{count}} invoices will be issued",
+      "willSkip": "{{count}} units without a reading will be skipped: {{units}}",
+      "confirm": "Issue invoices",
+      "resultTitle": "Result",
+      "result": "Issued {{issued}}, skipped {{skipped}}",
+      "failed": "Could not issue the invoices. Please try again."
+    },
     "loading": "Loading billing data…",
     "loadFailed": "Could not load billing data. Try refreshing the page.",
     "invoiceStatus": {
