@@ -100,6 +100,12 @@ export function isMaintenanceData(v: unknown, property: PropertyData): v is Main
   return !(referenced.length > 0 && !referenced.some((id) => units.has(id)))
 }
 
+/** The day to write on a new history entry: today, but never earlier than the entry before it (a clock may move back). */
+const stamp = (history: { at: string }[], day: string): string => {
+  const last = history.at(-1)?.at ?? day
+  return last > day ? last : day
+}
+
 function defaultStorage(): Storage | null {
   try {
     return typeof localStorage === 'undefined' ? null : localStorage
@@ -172,7 +178,9 @@ export function createLocalMaintenanceApi(opts: Options = {}): MaintenanceApi {
   /** The freshest data. Call it synchronously right before changing anything, after the property data was loaded. */
   const fresh = (prop: PropertyData): MaintenanceData => {
     const { readable, text } = read()
-    if (readable && !(persistFailed && memory)) {
+    if (readable) {
+      // storage is the truth whenever it holds valid data, even if this tab once failed to save: another tab may have
+      // written since, and a stale copy in memory must never hide or overwrite that
       try {
         const parsed: unknown = JSON.parse(text ?? 'null')
         if (isMaintenanceData(parsed, prop)) {
@@ -182,6 +190,8 @@ export function createLocalMaintenanceApi(opts: Options = {}): MaintenanceApi {
       } catch {
         // not JSON: untrusted
       }
+      // nothing valid in storage: keep working from memory only if this tab could not save (the storage never got it)
+      if (persistFailed && memory && isMaintenanceData(memory, prop)) return memory
       return seed(prop)
     }
     return memory && isMaintenanceData(memory, prop) ? memory : seed(prop)
@@ -247,7 +257,7 @@ export function createLocalMaintenanceApi(opts: Options = {}): MaintenanceApi {
       const first = request.status === 'waiting'
       request.assigneeId = technician.id
       request.status = 'assigned'
-      request.history.push({ status: 'assigned', at: today(), note: '', byName: actorName })
+      request.history.push({ status: 'assigned', at: stamp(request.history, today()), note: '', byName: actorName })
       notify(data, 'assigned', request.id, technician.phone)
       if (first) notify(data, 'statusChanged', request.id, request.tenantPhone, 'assigned') // changing the technician later does not tell the tenant again
       if (!persistStrict(data)) throw new MaintenanceError('storage_failed')
@@ -266,7 +276,7 @@ export function createLocalMaintenanceApi(opts: Options = {}): MaintenanceApi {
         throw new MaintenanceError('invalid_transition')
       }
       request.status = status
-      request.history.push({ status, at: today(), note: note.trim(), byName: actor.name })
+      request.history.push({ status, at: stamp(request.history, today()), note: note.trim(), byName: actor.name })
       notify(data, 'statusChanged', request.id, request.tenantPhone, status)
       if (!persistStrict(data)) throw new MaintenanceError('storage_failed')
       return clone(request)

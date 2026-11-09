@@ -71,12 +71,29 @@ export function createLocalAuthApi(opts: Options = {}): AuthApi {
     }
   }
 
+  /**
+   * The phone number is what links an account to a lease, so a demo account stored by an earlier version (with the old
+   * shared number) would silently lose its invoices, bookings and parcels. Demo accounts get their current number back;
+   * registered accounts are never touched.
+   */
+  const repairDemoPhones = (users: StoredUser[]): StoredUser[] => {
+    let changed = false
+    const repaired = users.map((user) => {
+      const demo = DEMO_ACCOUNTS.find((a) => a.username === user.username && a.role === user.role)
+      if (!demo || demo.phone === user.phone) return user
+      changed = true
+      return { ...user, phone: demo.phone }
+    })
+    if (changed) write(USERS_KEY, JSON.stringify(repaired))
+    return repaired
+  }
+
   let usersPromise: Promise<StoredUser[]> | null = null
   const loadUsers = (): Promise<StoredUser[]> => {
     usersPromise ??= (async () => {
       try {
         const parsed: unknown = JSON.parse(read(USERS_KEY) ?? 'null')
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed.every(isStoredUser)) return parsed
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed.every(isStoredUser)) return repairDemoPhones(parsed)
       } catch {
         // fall through to seeding
       }

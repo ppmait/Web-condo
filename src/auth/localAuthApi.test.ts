@@ -80,6 +80,77 @@ describe('seeding', () => {
   })
 })
 
+describe('demo accounts that were stored with an older phone number', () => {
+  /** storage as an earlier visit left it: the demo tenant and technician still have the old shared number */
+  async function staleStorage() {
+    const storage = new MemoryStorage()
+    await make(storage).login('tenant01', DEMO_PASSWORD) // seeds the users
+    const users = JSON.parse(storage.getItem(USERS_KEY) as string) as { username: string; phone: string }[]
+    for (const u of users) if (u.username === 'tenant01' || u.username === 'tech01') u.phone = '0800000000'
+    storage.setItem(USERS_KEY, JSON.stringify(users))
+    return { storage, before: users }
+  }
+
+  it('puts the current phone number back on a demo account at the next login, and stores it', async () => {
+    const { storage } = await staleStorage()
+    const api = make(storage)
+    expect((await api.login('tenant01', DEMO_PASSWORD)).phone).toBe(DEMO_TENANT_PHONE)
+    expect((await api.login('tech01', DEMO_PASSWORD)).phone).toBe(DEMO_TECH_PHONE)
+    const stored = JSON.parse(storage.getItem(USERS_KEY) as string) as { username: string; phone: string }[]
+    expect(stored.find((u) => u.username === 'tenant01')!.phone).toBe(DEMO_TENANT_PHONE)
+    expect(stored.find((u) => u.username === 'tech01')!.phone).toBe(DEMO_TECH_PHONE)
+  })
+
+  it('also repairs the account of a session that is already signed in', async () => {
+    const { storage } = await staleStorage()
+    const first = make(storage)
+    await first.login('tenant01', DEMO_PASSWORD)
+    expect((await make(storage).currentUser())?.phone).toBe(DEMO_TENANT_PHONE)
+  })
+
+  it('keeps the id and the password of the account, and leaves other accounts and demo numbers that are already right alone', async () => {
+    const { storage, before } = await staleStorage()
+    const api = make(storage)
+    await api.register(form)
+    await api.login('tenant01', DEMO_PASSWORD)
+    const after = JSON.parse(storage.getItem(USERS_KEY) as string) as { id: string; username: string; phone: string; passwordHash: string }[]
+    const original = (name: string) => before.find((u) => u.username === name) as unknown as { id: string; passwordHash: string }
+    expect(after.find((u) => u.username === 'tenant01')).toMatchObject({ id: original('tenant01').id, passwordHash: original('tenant01').passwordHash })
+    expect(after.find((u) => u.username === 'somchai_01')!.phone).toBe(form.phone)
+    expect(after.find((u) => u.username === 'staff01')!.phone).toBe('0800000000')
+  })
+
+  it('does not touch a registered account that happens to use the old shared number', async () => {
+    const { storage } = await staleStorage()
+    const api = make(storage)
+    const user = await api.register({ ...form, phone: '0800000000' })
+    expect(user.phone).toBe('0800000000')
+    await api.login('tenant01', DEMO_PASSWORD)
+    expect((await make(storage).login('somchai_01', 'password123')).phone).toBe('0800000000')
+  })
+
+  it('writes nothing when every demo number is already right', async () => {
+    const storage = new MemoryStorage()
+    await make(storage).login('tenant01', DEMO_PASSWORD)
+    let writes = 0
+    const original = storage.setItem.bind(storage)
+    storage.setItem = (k: string, v: string) => {
+      if (k === USERS_KEY) writes++
+      original(k, v)
+    }
+    await make(storage).login('tenant01', DEMO_PASSWORD)
+    expect(writes).toBe(0)
+  })
+
+  it('still works when the repaired list cannot be written', async () => {
+    const { storage } = await staleStorage()
+    storage.setItem = () => {
+      throw new Error('quota')
+    }
+    expect((await make(storage).login('tenant01', DEMO_PASSWORD)).phone).toBe(DEMO_TENANT_PHONE)
+  })
+})
+
 describe('register', () => {
   it('creates a tenant, returns no password fields and starts the session', async () => {
     const api = make()

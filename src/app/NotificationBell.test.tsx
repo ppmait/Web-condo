@@ -5,6 +5,9 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { DEMO_TECH_PHONE, DEMO_TENANT_PHONE } from '../auth/demoAccounts'
 import i18n from '../i18n'
 import { BILLING_KEY, createLocalBillingApi } from '../billing/localBillingApi'
+import { createLocalFacilitiesApi, FACILITIES_KEY } from '../facilities/localFacilitiesApi'
+import { makeFacilitiesSeed } from '../facilities/seed'
+import type { FacilitiesData } from '../facilities/types'
 import { createLocalMaintenanceApi, MAINTENANCE_KEY } from '../maintenance/localMaintenanceApi'
 import { makeMaintenanceSeed } from '../maintenance/seed'
 import type { MaintenanceData } from '../maintenance/types'
@@ -12,7 +15,7 @@ import { invoiceStatus, tenantInvoices } from '../billing/rules'
 import { makeBillingSeed } from '../billing/seed'
 import type { AppNotification, BillingData } from '../billing/types'
 import { PROPERTY_KEY } from '../property/localPropertyApi'
-import { todayISO } from '../property/dates'
+import { addDays, todayISO } from '../property/dates'
 import { makeSeed } from '../property/seed'
 import { renderApp } from '../test/renderApp'
 
@@ -31,15 +34,22 @@ function LocationProbe() {
  * Puts sample property, billing and maintenance data into localStorage, as another tab or an earlier visit would.
  * `edit` changes the billing data; the maintenance notifications start empty so the billing tests count only billing.
  */
-function seedStorage(edit: (data: BillingData) => void = () => {}, editMaintenance: (data: MaintenanceData) => void = (d) => void (d.notifications = [])) {
+function seedStorage(
+  edit: (data: BillingData) => void = () => {},
+  editMaintenance: (data: MaintenanceData) => void = (d) => void (d.notifications = []),
+  editFacilities: (data: FacilitiesData) => void = (d) => void (d.notifications = []),
+) {
   const property = makeSeed(today)
   const data = makeBillingSeed(property, today)
   edit(data)
   const repairs = makeMaintenanceSeed(property, today)
   editMaintenance(repairs)
+  const places = makeFacilitiesSeed(property, today)
+  editFacilities(places)
   localStorage.setItem(PROPERTY_KEY, JSON.stringify(property))
   localStorage.setItem(BILLING_KEY, JSON.stringify(data))
   localStorage.setItem(MAINTENANCE_KEY, JSON.stringify(repairs))
+  localStorage.setItem(FACILITIES_KEY, JSON.stringify(places))
   return data
 }
 
@@ -314,6 +324,72 @@ describe('NotificationBell: repair notices', () => {
     await api.createRequest({ category: 'plumbing', title: 'ท่อรั่ว', description: 'น้ำรั่ว', photos: [{ name: 'a.jpg', dataUrl: 'data:image/jpeg;base64,QUJD' }], tenantPhone: DEMO_TENANT_PHONE, tenantName: 'สมชาย ผู้เช่า' })
     await act(async () => {
       window.dispatchEvent(new StorageEvent('storage', { key: MAINTENANCE_KEY }))
+    })
+    await waitFor(() => expect(within(screen.getByRole('button', { name: /การแจ้งเตือน/ })).getByText(String(before + 1))).toBeInTheDocument())
+  })
+})
+
+describe('NotificationBell: bookings and parcels', () => {
+  const places = makeFacilitiesSeed(makeSeed(today), today)
+  const keep = () => {}
+  const unreadFor = (recipient: string, types: string[]) =>
+    places.notifications.filter((n) => n.recipient === recipient && !n.read && types.includes(n.type)).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
+
+  it('adds a tenant’s booking and parcel notices to the one count', async () => {
+    const data = seedStorage(undefined, undefined, keep) // repair notices start empty so these tests count bookings and parcels only
+    const unread = mine(data).filter((n) => !n.read).length + unreadFor(DEMO_TENANT_PHONE, ['bookingDecided', 'parcelArrived']).length
+    await open()
+    expect(within(await screen.findByRole('button', { name: /การแจ้งเตือน/ })).getByText(String(unread))).toBeInTheDocument()
+  })
+
+  it('opens the parcel from a tenant’s notice: goes to ?parcel=, shows it, marks it read', async () => {
+    seedStorage(undefined, undefined, keep) // repair notices start empty so these tests count bookings and parcels only
+    const target = unreadFor(DEMO_TENANT_PHONE, ['parcelArrived'])[0]
+    const parcel = places.parcels.find((p) => p.id === target.refId)!
+    await open()
+    await userEvent.click(await screen.findByRole('button', { name: /การแจ้งเตือน/ }))
+    await userEvent.click(within(screen.getByRole('dialog')).getAllByRole('button', { name: new RegExp(`มีพัสดุมาส่งถึงห้อง ${parcel.unitCode} \\(${parcel.carrier}\\)`) })[0])
+    expect(await screen.findByRole('dialog', { name: `พัสดุ ${parcel.code}` })).toBeInTheDocument()
+    expect(screen.getByTestId('location').textContent).toBe(`/tenant/parcels?parcel=${parcel.id}`)
+    const stored = JSON.parse(localStorage.getItem(FACILITIES_KEY) as string) as FacilitiesData
+    expect(stored.notifications.find((n) => n.id === target.id)!.read).toBe(true)
+  })
+
+  it('opens the booking from the decision a tenant was told', async () => {
+    seedStorage(undefined, undefined, keep) // repair notices start empty so these tests count bookings and parcels only
+    const target = unreadFor(DEMO_TENANT_PHONE, ['bookingDecided'])[0]
+    const booking = places.bookings.find((b) => b.id === target.refId)!
+    await open()
+    await userEvent.click(await screen.findByRole('button', { name: /การแจ้งเตือน/ }))
+    await userEvent.click(within(screen.getByRole('dialog')).getAllByRole('button', { name: new RegExp(`การจอง ${booking.code} `) })[0])
+    expect(await screen.findByRole('dialog', { name: `การจอง ${booking.code}` })).toBeInTheDocument()
+    expect(screen.getByTestId('location').textContent).toBe(`/tenant/facilities?booking=${booking.id}`)
+  })
+
+  it('shows the juristic office the new booking requests and opens the one they press', async () => {
+    seedStorage(undefined, undefined, keep) // repair notices start empty so these tests count bookings and parcels only
+    const created = unreadFor('role:juristic', ['bookingCreated', 'bookingCancelled'])
+    expect(created.length).toBeGreaterThan(0)
+    const booking = places.bookings.find((b) => b.id === created[0].refId)!
+    await open('juristic', '/juristic/billing')
+    const button = await screen.findByRole('button', { name: /การแจ้งเตือน/ })
+    await userEvent.click(button)
+    await userEvent.click(within(screen.getByRole('dialog')).getAllByRole('button', { name: new RegExp(`มีคำขอจอง ${booking.code} `) })[0])
+    expect(await screen.findByRole('dialog', { name: `การจอง ${booking.code}` })).toBeInTheDocument()
+    expect(screen.getByTestId('location').textContent).toBe(`/juristic/parcels-bookings?booking=${booking.id}`)
+  })
+
+  it('shows a booking made in another tab without a refresh (storage event)', async () => {
+    seedStorage(undefined, undefined, keep) // repair notices start empty so these tests count bookings and parcels only
+    const before = places.notifications.filter((n) => n.recipient === 'role:juristic' && !n.read).length
+    await open('juristic', '/juristic/billing')
+    await screen.findByRole('button', { name: /การแจ้งเตือน/ })
+    const api = createLocalFacilitiesApi({ storage: localStorage, today: () => today })
+    const data = await api.load()
+    const meeting = data.facilities.find((f) => f.key === 'meeting')!
+    await api.createBooking({ facilityId: meeting.id, date: addDays(today, 12), startHour: 15, endHour: 16, people: 1, tenantPhone: DEMO_TENANT_PHONE, tenantName: 'สมชาย ผู้เช่า' })
+    await act(async () => {
+      window.dispatchEvent(new StorageEvent('storage', { key: FACILITIES_KEY }))
     })
     await waitFor(() => expect(within(screen.getByRole('button', { name: /การแจ้งเตือน/ })).getByText(String(before + 1))).toBeInTheDocument())
   })

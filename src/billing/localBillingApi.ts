@@ -224,7 +224,9 @@ export function createLocalBillingApi(opts: Options = {}): BillingApi {
   /** The freshest data. Call it synchronously right before changing anything, after the property data was loaded. */
   const fresh = (prop: PropertyData): BillingData => {
     const { readable, text } = read()
-    if (readable && !(persistFailed && memory)) {
+    if (readable) {
+      // storage is the truth whenever it holds valid data, even if this tab once failed to save: another tab may have
+      // written since, and a stale copy in memory must never hide or overwrite that
       try {
         const parsed: unknown = JSON.parse(text ?? 'null')
         if (isBillingData(parsed, prop)) {
@@ -234,6 +236,8 @@ export function createLocalBillingApi(opts: Options = {}): BillingApi {
       } catch {
         // not JSON: untrusted
       }
+      // nothing valid in storage: keep working from memory only if this tab could not save (the storage never got it)
+      if (persistFailed && memory && isBillingData(memory, prop)) return memory
       return seed(prop)
     }
     return memory && isBillingData(memory, prop) ? memory : seed(prop)
