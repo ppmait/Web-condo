@@ -130,10 +130,13 @@ function isBillingData(v: unknown, property: PropertyData): v is BillingData {
   if (new Set(ids).size !== ids.length) return false
 
   const units = new Map(property.units.map((u) => [u.id, u]))
-  const leases = new Map(property.leases.map((l) => [l.id, l]))
 
   if (new Set(rs.map((r) => `${r.unitId}|${r.period}`)).size !== rs.length) return false
-  if (!rs.every((r) => units.has(r.unitId))) return false
+  // Billing data that belongs to another property (none of its units exist) is replaced. Partly dangling references are
+  // kept: an ordinary edit (a lease moved to another unit, a unit deleted) must never wipe invoices and payments, and
+  // invoices carry their own snapshot of unit, tenant and amounts.
+  const referenced = [...rs.map((r) => r.unitId), ...invs.map((i) => i.unitId)]
+  if (referenced.length > 0 && !referenced.some((id) => units.has(id))) return false
   const byUnit = new Map<string, MeterReading[]>()
   for (const r of rs) byUnit.set(r.unitId, [...(byUnit.get(r.unitId) ?? []), r])
   for (const list of byUnit.values()) {
@@ -146,11 +149,9 @@ function isBillingData(v: unknown, property: PropertyData): v is BillingData {
   if (new Set(invs.map((i) => i.number)).size !== invs.length) return false
   if (new Set(invs.map((i) => `${i.unitId}|${i.period}`)).size !== invs.length) return false
   for (const i of invs) {
-    const unit = units.get(i.unitId)
-    const lease = leases.get(i.leaseId)
     const reading = rs.find((r) => r.unitId === i.unitId && r.period === i.period)
-    if (!unit || !lease || lease.unitId !== i.unitId || !reading) return false
-    if (i.unitCode !== unit.code || i.number !== invoiceNumber(i.period, unit.code) || i.dueDate !== dueDateOf(i.period)) return false
+    if (!reading) return false
+    if (i.number !== invoiceNumber(i.period, i.unitCode) || i.dueDate !== dueDateOf(i.period)) return false
     if (i.water.units !== reading.waterCurr - reading.waterPrev || i.water.amount !== roundBaht(i.water.units * i.water.rate)) return false
     if (i.electric.units !== reading.electricCurr - reading.electricPrev || i.electric.amount !== roundBaht(i.electric.units * i.electric.rate)) return false
     if (i.common.amount !== roundBaht(i.common.areaSqm * i.common.rate)) return false
@@ -158,7 +159,7 @@ function isBillingData(v: unknown, property: PropertyData): v is BillingData {
     const pending = i.slips.filter((s) => s.status === 'pending').length
     const approved = i.slips.filter((s) => s.status === 'approved').length
     if (pending > 1 || approved > 1 || (approved === 1 && pending > 0)) return false
-    if (i.receipt && (approved !== 1 || i.receipt.number !== receiptNumber(i.period, unit.code) || i.receipt.amount !== i.total)) return false
+    if (i.receipt && (approved !== 1 || i.receipt.number !== receiptNumber(i.period, i.unitCode) || i.receipt.amount !== i.total)) return false
   }
 
   const byId = new Map(invs.map((i) => [i.id, i]))

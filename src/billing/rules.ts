@@ -47,9 +47,11 @@ export function billable(property: PropertyData, period: Period): { unit: Unit; 
   const end = periodEnd(period)
   const result: { unit: Unit; lease: Lease }[] = []
   for (const unit of property.units) {
-    const candidates = property.leases.filter(
-      (l) => l.unitId === unit.id && l.startDate <= end && l.endDate >= start && (!l.cancelledAt || l.cancelledAt >= start),
-    )
+    const candidates = property.leases.filter((l) => {
+      // a cancelled lease ends on the day it was cancelled; one cancelled before it ever started never counts
+      const effectiveEnd = l.cancelledAt && l.cancelledAt < l.endDate ? l.cancelledAt : l.endDate
+      return l.unitId === unit.id && l.startDate <= end && effectiveEnd >= start && effectiveEnd >= l.startDate
+    })
     if (candidates.length === 0) continue
     const lease = candidates.reduce((latest, l) => (l.startDate > latest.startDate ? l : latest))
     result.push({ unit, lease })

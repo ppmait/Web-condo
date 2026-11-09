@@ -160,6 +160,13 @@ describe('billable', () => {
     expect(ids(property([unit()], [l]))).toEqual(expected ? ['A-1204/l1'] : [])
   })
 
+  it('does not bill a lease that was cancelled before it ever started, and bills the tenant who is really there', () => {
+    const real = lease({ id: 'real', startDate: '2026-01-01', endDate: '2026-11-15' })
+    const never = lease({ id: 'never', startDate: '2026-11-20', endDate: '2027-11-19', cancelledAt: '2026-11-05', cancelReason: '' })
+    expect(ids(property([unit()], [real, never]))).toEqual(['A-1204/real'])
+    expect(ids(property([unit()], [never]))).toEqual([])
+  })
+
   it('bills one lease per unit: the one that starts later when two overlap the period', () => {
     const first = lease({ id: 'old', startDate: '2026-01-01', endDate: '2026-11-10' })
     const second = lease({ id: 'new', startDate: '2026-11-11', endDate: '2027-11-10' })

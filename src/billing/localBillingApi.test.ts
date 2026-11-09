@@ -380,9 +380,8 @@ describe('data that cannot be trusted', () => {
     ['an array', () => []],
     ['another version', (d) => ({ ...d, version: 2 })],
     ['readings that is not an array', (d) => ({ ...d, readings: {} })],
+    ['readings and invoices that all refer to units that do not exist', (d) => ({ ...d, readings: d.readings.map((r) => ({ ...r, unitId: 'ghost-' + r.unitId })), invoices: d.invoices.map((i) => ({ ...i, unitId: 'ghost-' + i.unitId })) })],
     ['rates of zero', (d) => ({ ...d, rates: { ...d.rates, water: 0 } })],
-    ['an invoice for a unit that does not exist', (d) => ({ ...d, invoices: [{ ...d.invoices[0], unitId: 'ghost' }, ...d.invoices.slice(1)] })],
-    ['an invoice for a lease that does not exist', (d) => ({ ...d, invoices: [{ ...d.invoices[0], leaseId: 'ghost' }, ...d.invoices.slice(1)] })],
     ['an invoice whose total is not the sum of its lines', (d) => ({ ...d, invoices: [{ ...d.invoices[0], total: d.invoices[0].total + 1 }, ...d.invoices.slice(1)] })],
     ['an invoice whose water amount does not match units × rate', (d) => ({ ...d, invoices: [{ ...d.invoices[0], water: { ...d.invoices[0].water, amount: d.invoices[0].water.amount + 1 }, total: d.invoices[0].total + 1 }, ...d.invoices.slice(1)] })],
     ['two invoices with the same number', (d) => ({ ...d, invoices: [d.invoices[0], { ...d.invoices[1], number: d.invoices[0].number }, ...d.invoices.slice(2)] })],
@@ -424,16 +423,36 @@ describe('data that cannot be trusted', () => {
     expect((await make(storage).load()).rates.water).toBe(25)
   })
 
-  it('starts again from sample data when the property data it refers to is not there any more', async () => {
+  it('keeps the billing data when a property edit leaves some references dangling (a lease moved to another unit, a unit deleted)', async () => {
+    const storage = new MemoryStorage()
+    const before = seeded()
+    storage.setItem(BILLING_KEY, JSON.stringify(before))
+    const full = propertyData()
+    const a1204 = unitIdByCode('A-1204')
+    const moved: PropertyData = { ...full, leases: full.leases.map((l) => (l.unitId === a1204 ? { ...l, unitId: unitIdByCode('A-0501') } : l)), inspections: [] }
+    const deleted: PropertyData = { ...full, units: full.units.filter((u) => u.id !== a1204), leases: full.leases.filter((l) => l.unitId !== a1204), inspections: [] }
+    const property = createLocalPropertyApi({ storage: null, today: () => TODAY })
+    for (const edited of [moved, deleted]) {
+      const stubbed: PropertyApi = { ...property, load: async () => edited }
+      const data = await createLocalBillingApi({ storage, today: () => TODAY, property: stubbed }).load()
+      expect(data).toEqual(before)
+    }
+  })
+
+  it('starts again from sample data when none of the units it refers to exist (the property data was replaced)', async () => {
     const storage = new MemoryStorage()
     storage.setItem(BILLING_KEY, JSON.stringify(seeded()))
-    const smaller: PropertyData = { ...propertyData(), units: propertyData().units.filter((u) => u.code !== 'A-1204'), leases: propertyData().leases.filter((l) => l.unitId !== unitIdByCode('A-1204')), inspections: [] }
+    const full = propertyData()
+    const renamed: PropertyData = {
+      ...full,
+      units: full.units.map((u) => ({ ...u, id: 'x-' + u.id })),
+      leases: full.leases.map((l) => ({ ...l, unitId: 'x-' + l.unitId })),
+      inspections: [],
+    }
     const property = createLocalPropertyApi({ storage: null, today: () => TODAY })
-    const original = await property.load()
-    expect(original.units.length).toBe(smaller.units.length + 1)
-    const stubbed: PropertyApi = { ...property, load: async () => smaller }
+    const stubbed: PropertyApi = { ...property, load: async () => renamed }
     const data = await createLocalBillingApi({ storage, today: () => TODAY, property: stubbed }).load()
-    expect(data.invoices.every((i) => i.unitCode !== 'A-1204')).toBe(true)
+    expect(data).toEqual(makeBillingSeed(renamed, TODAY))
   })
 })
 
