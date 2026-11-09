@@ -10,6 +10,9 @@ import RatesTab from '../features/billing/RatesTab'
 import ReadingsTab from '../features/billing/ReadingsTab'
 import SlipsTab from '../features/billing/SlipsTab'
 import JuristicMaintenancePage from '../features/maintenance/JuristicMaintenancePage'
+import BookingsTab from '../features/facilities/BookingsTab'
+import JuristicFacilitiesPage from '../features/facilities/JuristicFacilitiesPage'
+import ParcelsTab from '../features/facilities/ParcelsTab'
 import TenantParcelsPage from '../features/facilities/TenantParcelsPage'
 import TenantFacilitiesPage from '../features/facilities/TenantFacilitiesPage'
 import TechnicianJobsPage from '../features/maintenance/TechnicianJobsPage'
@@ -29,6 +32,7 @@ const JURISTIC_MAINTENANCE_PATH = '/juristic/maintenance' // built page
 const TECHNICIAN_JOBS_PATH = '/technician/jobs' // built page
 const TENANT_FACILITIES_PATH = '/tenant/facilities' // built page
 const TENANT_PARCELS_PATH = '/tenant/parcels' // built page
+const JURISTIC_FACILITIES_PATH = '/juristic/parcels-bookings' // built page with its own nested tab routes
 const JURISTIC_BILLING_PATH = '/juristic/billing' // built page with its own nested tab routes
 
 export function AppRoutes() {
@@ -46,7 +50,7 @@ export function AppRoutes() {
           ))}
           {ROLES.flatMap((role) =>
             NAV_BY_ROLE[role]
-              .filter((item) => item.path !== UNITS_PATH && item.path !== TENANT_BILLING_PATH && item.path !== JURISTIC_BILLING_PATH && item.path !== TENANT_MAINTENANCE_PATH && item.path !== JURISTIC_MAINTENANCE_PATH && item.path !== TECHNICIAN_JOBS_PATH && item.path !== TENANT_FACILITIES_PATH && item.path !== TENANT_PARCELS_PATH)
+              .filter((item) => item.path !== UNITS_PATH && item.path !== TENANT_BILLING_PATH && item.path !== JURISTIC_BILLING_PATH && item.path !== TENANT_MAINTENANCE_PATH && item.path !== JURISTIC_MAINTENANCE_PATH && item.path !== TECHNICIAN_JOBS_PATH && item.path !== TENANT_FACILITIES_PATH && item.path !== TENANT_PARCELS_PATH && item.path !== JURISTIC_FACILITIES_PATH)
               .map((item) => <Route key={item.path} path={item.path} element={<PlaceholderPage />} />),
           )}
           <Route path={TENANT_BILLING_PATH} element={<TenantBillingPage />} />
@@ -55,6 +59,10 @@ export function AppRoutes() {
           <Route path={TECHNICIAN_JOBS_PATH} element={<TechnicianJobsPage />} />
           <Route path={TENANT_FACILITIES_PATH} element={<TenantFacilitiesPage />} />
           <Route path={TENANT_PARCELS_PATH} element={<TenantParcelsPage />} />
+          <Route path={JURISTIC_FACILITIES_PATH} element={<JuristicFacilitiesPage />}>
+            <Route index element={<BookingsTab />} />
+            <Route path="parcels" element={<ParcelsTab />} />
+          </Route>
           <Route path={JURISTIC_BILLING_PATH} element={<BillingPage />}>
             <Route index element={<ReadingsTab />} />
             <Route path="invoices" element={<InvoicesTab />} />
