@@ -271,6 +271,12 @@
     }
   },
   "facilities": {
+    "notifications": {
+      "bookingCreated": "มีคำขอจอง {{code}} {{facility}} วันที่ {{date}}",
+      "bookingDecided": "การจอง {{code}} {{status}}",
+      "bookingCancelled": "ผู้เช่ายกเลิกการจอง {{code}}",
+      "parcelArrived": "มีพัสดุมาส่งถึงห้อง {{unit}} ({{carrier}})"
+    },
     "juristic": {
       "tabs": { "label": "ส่วนของพัสดุและการจอง", "bookings": "การจอง", "parcels": "พัสดุ" },
       "cards": { "pending": "คำขอที่รอยืนยัน", "confirmed": "การจองที่ยืนยันแล้ว", "rejected": "การจองที่ถูกปฏิเสธ", "cancelled": "การจองที่ยกเลิกแล้ว" },

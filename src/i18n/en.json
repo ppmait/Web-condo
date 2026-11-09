@@ -271,6 +271,12 @@
     }
   },
   "facilities": {
+    "notifications": {
+      "bookingCreated": "New booking request {{code}}, {{facility}} on {{date}}",
+      "bookingDecided": "Booking {{code}}: {{status}}",
+      "bookingCancelled": "The tenant cancelled booking {{code}}",
+      "parcelArrived": "A parcel arrived for unit {{unit}} ({{carrier}})"
+    },
     "juristic": {
       "tabs": { "label": "Parcels and bookings sections", "bookings": "Bookings", "parcels": "Parcels" },
       "cards": { "pending": "Requests to confirm", "confirmed": "Confirmed bookings", "rejected": "Rejected bookings", "cancelled": "Cancelled bookings" },
