@@ -271,6 +271,38 @@
     }
   },
   "billing": {
+    "invoices": {
+      "filter": "Status",
+      "filterOption": {
+        "all": "All",
+        "outstanding": "Outstanding",
+        "verifying": "Verifying slip",
+        "overdue": "Overdue",
+        "paid": "Paid",
+        "awaitingReceipt": "Receipt pending"
+      },
+      "empty": "No invoices in this period",
+      "emptyFiltered": "No invoices match this filter",
+      "viewDetail": "View details {{number}}",
+      "issueReceipt": "Issue receipt",
+      "issueReceiptOf": "Issue receipt {{number}}",
+      "receiptTitle": "Issue receipt {{number}}",
+      "receiptMessage": "Confirm issuing a receipt of {{amount}} for unit {{unit}}",
+      "receiptExists": "The receipt for this invoice has already been issued",
+      "receiptNotPayable": "A receipt cannot be issued yet because this invoice has not been paid",
+      "receiptFailed": "Could not issue the receipt. Please try again.",
+      "noSlips": "No slips yet",
+      "reason": "Reason: {{reason}}"
+    },
+    "rates": {
+      "water": "Water rate (baht per unit)",
+      "electric": "Electricity rate (baht per unit)",
+      "common": "Common fee (baht per sq.m. per month)",
+      "hint": "New rates apply to invoices issued from now on. Invoices that were already issued do not change.",
+      "save": "Save rates",
+      "saved": "Rates saved",
+      "failed": "Could not save the rates. Please try again."
+    },
     "page": { "periodNav": "Billing period", "prev": "Previous period", "next": "Next period" },
     "summary": {
       "billed": "Billed this period",
@@ -343,6 +375,7 @@
       "amount": "Amount"
     },
     "openInvoice": "Open invoice {{number}}",
+    "openDetail": "Details",
     "viewReceipt": "View receipt",
     "viewReceiptOf": "View receipt {{number}}",
     "receiptPending": "Receipt pending",
