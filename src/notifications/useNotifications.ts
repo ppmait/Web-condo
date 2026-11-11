@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { isUnreadBy } from '../announcements/rules'
+import { useAnnouncements } from '../announcements/useAnnouncements'
 import { useAuth } from '../auth/useAuth'
 import { useBilling } from '../billing/useBilling'
 import { useFacilities } from '../facilities/useFacilities'
@@ -9,7 +11,7 @@ import { useMaintenance } from '../maintenance/useMaintenance'
 export interface AppNotice {
   /** unique across sources */
   key: string
-  source: 'billing' | 'maintenance' | 'facilities'
+  source: 'billing' | 'maintenance' | 'facilities' | 'announcements'
   text: string
   /** for a rejected slip: why */
   reason?: string
@@ -32,10 +34,11 @@ const FACILITY_KINDS = { tenant: ['bookingDecided', 'parcelArrived'], technician
 export function useNotifications(): { notices: AppNotice[]; unread: number; markAllRead(): Promise<void> } {
   const { t, i18n } = useTranslation()
   const lang = i18n.language === 'en' ? 'en' : 'th'
-  const { user } = useAuth()
+  const user = useAuth().user
   const billing = useBilling()
   const maintenance = useMaintenance()
   const facilities = useFacilities()
+  const announcements = useAnnouncements()
 
   if (!user) return { notices: [], unread: 0, markAllRead: async () => {} }
 
@@ -43,6 +46,18 @@ export function useNotifications(): { notices: AppNotice[]; unread: number; mark
 
   // invoices are the tenant's
   if (user.role === 'tenant') {
+    for (const a of announcements.data.announcements) {
+      if (!isUnreadBy(a, user.phone, announcements.today)) continue
+      notices.push({
+        key: `announcements:${a.id}`,
+        source: 'announcements',
+        text: t('announcements.notifications.newAnnouncement', { title: a.title }),
+        createdAt: a.updatedAt || a.createdAt,
+        read: false,
+        to: `/tenant/announcements?announcement=${a.id}`,
+        markRead: () => announcements.markRead(a.id, user.phone),
+      })
+    }
     for (const n of billing.data.notifications) {
       if (n.recipientPhone !== user.phone) continue
       const invoice = billing.data.invoices.find((i) => i.id === n.invoiceId)
@@ -115,7 +130,10 @@ export function useNotifications(): { notices: AppNotice[]; unread: number; mark
 
   const markAllRead = async () => {
     const jobs: Promise<void>[] = []
-    if (user.role === 'tenant') jobs.push(billing.markAllRead(user.phone))
+    if (user.role === 'tenant') {
+      jobs.push(billing.markAllRead(user.phone))
+      jobs.push(announcements.markAllRead(user.phone))
+    }
     jobs.push(maintenance.markAllRead(user.phone))
     jobs.push(facilities.markAllRead(user.phone))
     if (user.role === 'juristic') {

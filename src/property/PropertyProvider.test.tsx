@@ -31,6 +31,11 @@ const mount = (api: PropertyApi, today: () => string = () => TEST_TODAY) =>
     </PropertyProvider>,
   )
 
+async function ready() {
+  await screen.findByText('ready')
+  await vi.waitFor(() => expect(holder.value?.status).toBe('ready'))
+}
+
 const newUnit = (over: Partial<UnitInput> = {}): UnitInput => ({
   code: 'C-0101',
   floor: 1,
@@ -49,7 +54,7 @@ describe('PropertyProvider', () => {
   it('starts loading, then is ready with the data, today and a matching summary', async () => {
     mount(makeTestApi())
     expect(screen.getByTestId('status')).toHaveTextContent('loading')
-    await screen.findByText('ready')
+    await ready()
     expect(screen.getByTestId('units')).toHaveTextContent('24')
     expect(screen.getByTestId('today')).toHaveTextContent(TEST_TODAY)
     expect(prop().summary).toEqual(summarize(prop().data, TEST_TODAY))
@@ -57,7 +62,7 @@ describe('PropertyProvider', () => {
 
   it('reloads after a change: units and summary update, and the created unit is returned', async () => {
     mount(makeTestApi())
-    await screen.findByText('ready')
+    await ready()
     let id = ''
     await act(async () => {
       id = (await prop().createUnit(newUnit())).id
@@ -69,7 +74,7 @@ describe('PropertyProvider', () => {
 
   it('throws the PropertyError on to the caller and leaves the data unchanged', async () => {
     mount(makeTestApi())
-    await screen.findByText('ready')
+    await ready()
     let error: unknown
     await act(async () => {
       error = await prop().createUnit(newUnit({ code: 'bad' })).catch((e: unknown) => e)
@@ -81,7 +86,7 @@ describe('PropertyProvider', () => {
 
   it('reflects deleting a unit, cancelling a lease and saving an inspection', async () => {
     mount(makeTestApi())
-    await screen.findByText('ready')
+    await ready()
     const free = prop().data.units.find((u) => !prop().data.leases.some((l) => l.unitId === u.id))!
     await act(async () => {
       await prop().deleteUnit(free.id)
@@ -122,7 +127,7 @@ describe('PropertyProvider', () => {
       load: () => (loads++ === 0 ? base.load() : Promise.reject(new Error('boom'))),
     }
     mount(api)
-    await screen.findByText('ready')
+    await ready()
     await act(async () => {
       await prop().createUnit(newUnit())
     })
@@ -145,7 +150,7 @@ describe('PropertyProvider', () => {
     const api = makeTestApi()
     const load = vi.spyOn(api, 'load')
     mount(api)
-    await screen.findByText('ready')
+    await ready()
     const before = load.mock.calls.length
     await act(async () => {
       window.dispatchEvent(new StorageEvent('storage', { key: 'something-else' }))

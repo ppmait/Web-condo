@@ -2,6 +2,7 @@ import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useLocation } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
+import { ANNOUNCEMENTS_KEY, makeAnnouncementsSeed } from '../announcements/seed'
 import { DEMO_TECH_PHONE, DEMO_TENANT_PHONE } from '../auth/demoAccounts'
 import i18n from '../i18n'
 import { BILLING_KEY, createLocalBillingApi } from '../billing/localBillingApi'
@@ -46,10 +47,17 @@ function seedStorage(
   editMaintenance(repairs)
   const places = makeFacilitiesSeed(property, today)
   editFacilities(places)
+  const annSeed = makeAnnouncementsSeed(today)
+  for (const a of annSeed.announcements) {
+    if (!a.readBy.includes(DEMO_TENANT_PHONE)) {
+      a.readBy.push(DEMO_TENANT_PHONE)
+    }
+  }
   localStorage.setItem(PROPERTY_KEY, JSON.stringify(property))
   localStorage.setItem(BILLING_KEY, JSON.stringify(data))
   localStorage.setItem(MAINTENANCE_KEY, JSON.stringify(repairs))
   localStorage.setItem(FACILITIES_KEY, JSON.stringify(places))
+  localStorage.setItem(ANNOUNCEMENTS_KEY, JSON.stringify(annSeed))
   return data
 }
 

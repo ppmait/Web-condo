@@ -722,5 +722,205 @@
       "rejectReason": "Please give a reason for rejecting",
       "notBillable": "This unit is not billed in this period (no lease covers it)"
     }
+  },
+  "announcements": {
+    "title": "Announcements",
+    "filter": {
+      "all": "All",
+      "live": "Live",
+      "expired": "Expired"
+    },
+    "category": {
+      "general": "General",
+      "maintenance": "Maintenance",
+      "event": "Event",
+      "urgent": "Urgent"
+    },
+    "status": {
+      "live": "Live",
+      "expired": "Expired",
+      "pinned": "Pinned",
+      "new": "New"
+    },
+    "columns": {
+      "code": "Announcement Code",
+      "category": "Category",
+      "title": "Title",
+      "published": "Published Date",
+      "expiresOn": "Expiry Date",
+      "pinned": "Pinned",
+      "readCount": "Read by",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
+      "create": "New Announcement",
+      "edit": "Edit",
+      "delete": "Delete",
+      "view": "View Details",
+      "markAllRead": "Mark all as read"
+    },
+    "fields": {
+      "title": "Title",
+      "body": "Content",
+      "category": "Category",
+      "pinned": "Pin this announcement",
+      "expiresOn": "Expiry date (optional)",
+      "author": "Author",
+      "published": "Published date"
+    },
+    "dialog": {
+      "createTitle": "Create Announcement",
+      "editTitle": "Edit Announcement {{code}}",
+      "deleteTitle": "Confirm Deletion",
+      "deleteConfirm": "Are you sure you want to delete announcement \"{{title}}\"? This action cannot be undone.",
+      "notFound": "This announcement was not found.",
+      "saving": "Saving…",
+      "deleting": "Deleting…",
+      "save": "Save Announcement",
+      "cancel": "Cancel"
+    },
+    "tenant": {
+      "open": "Open announcement {{code}}",
+      "empty": "No announcements at this time",
+      "pinnedBadge": "Pinned",
+      "newBadge": "New",
+      "expires": "Expires: {{date}}",
+      "noExpiry": "No expiry date"
+    },
+    "juristic": {
+      "empty": "No announcements found matching the filter",
+      "readCount": "{{count}} read"
+    },
+    "notifications": {
+      "newAnnouncement": "New announcement: {{title}}"
+    },
+    "errors": {
+      "title": "Please provide a title (up to 100 characters)",
+      "body": "Please provide content (up to 2,000 characters)",
+      "category": "Please select a category",
+      "expiresOn": "Expiry date must be a valid date and not in the past",
+      "incomplete": "Please fill in all required fields",
+      "notFound": "This announcement was not found",
+      "storageFailed": "Storage is full. Could not save announcement.",
+      "failed": "Failed to save announcement. Please try again."
+    }
+  },
+  "overview": {
+    "title": "Unit Overview",
+    "welcome": "Welcome, {{name}}",
+    "unitInfo": "Unit {{code}} · Tower {{tower}} Floor {{floor}}",
+    "leaseActive": "Lease: {{start}} to {{end}} (฿{{rent}}/mo)",
+    "noLease": "No active lease found",
+    "cards": {
+      "unpaidBills": "Outstanding Bills",
+      "waitingParcels": "Waiting Parcels",
+      "activeRepairs": "Active Repairs",
+      "upcomingBookings": "Facility Bookings"
+    },
+    "noUnpaidBills": "No unpaid bills",
+    "unpaidDue": "Due {{due}}",
+    "payNow": "Pay Now",
+    "viewParcels": "View Parcels",
+    "viewRepairs": "View Repairs",
+    "viewBookings": "View Bookings",
+    "announcementsTitle": "Latest Announcements",
+    "viewAllAnnouncements": "View All",
+    "noAnnouncements": "No announcements at this time",
+    "quickActions": "Quick Actions",
+    "newRepair": "New Repair Request",
+    "bookFacility": "Book Facility",
+    "viewBilling": "View Bills & Payments"
+  },
+  "dashboard": {
+    "title": "Juristic Dashboard",
+    "kpis": {
+      "occupancy": "Occupancy Rate",
+      "occupancyDetail": "{{rented}} rented · {{owner}} owner · {{vacant}} vacant",
+      "unpaidInvoices": "Unpaid Invoices",
+      "unpaidDetail": "{{count}} invoices due",
+      "pendingSlips": "Slips Pending Review",
+      "pendingSlipsDetail": "{{count}} slips waiting",
+      "pendingRepairs": "Pending Repairs",
+      "pendingRepairsDetail": "{{waiting}} unassigned · {{progress}} in progress",
+      "waitingParcels": "Parcels in Storage",
+      "waitingParcelsDetail": "{{count}} parcels waiting"
+    },
+    "quickActions": "Quick Navigation",
+    "actions": {
+      "units": "Units & Leases",
+      "billing": "Billing & Meters",
+      "maintenance": "Maintenance",
+      "parcels": "Parcels & Facilities",
+      "announcements": "Announcements",
+      "reports": "Reports & Analytics"
+    },
+    "recentSlips": "Slips Awaiting Verification",
+    "recentRepairs": "Repairs Awaiting Assignment",
+    "recentAnnouncements": "Latest Announcements",
+    "noPendingSlips": "No slips pending review",
+    "noPendingRepairs": "No unassigned repair requests",
+    "viewAll": "View all",
+    "unit": "Unit",
+    "tenant": "Tenant",
+    "amount": "Amount",
+    "date": "Date",
+    "action": "Action",
+    "review": "Review",
+    "assign": "Assign",
+    "readCount": "{{count}} read"
+  },
+  "reports": {
+    "title": "Reports & Analytics",
+    "print": "Print Report",
+    "tabs": {
+      "financial": "Financial",
+      "maintenance": "Maintenance",
+      "occupancy": "Occupancy & Leases"
+    },
+    "period": "Billing Period",
+    "allPeriods": "All Periods",
+    "financial": {
+      "totalRevenue": "Total Revenue Collected",
+      "outstanding": "Outstanding Balance",
+      "waterRevenue": "Water Revenue",
+      "electricRevenue": "Electricity Revenue",
+      "commonRevenue": "Common Fee Revenue",
+      "periodCol": "Period",
+      "totalBilled": "Total Billed",
+      "collected": "Collected",
+      "pending": "Pending",
+      "collectionRate": "Collection Rate",
+      "empty": "No financial records for the selected period"
+    },
+    "maintenance": {
+      "totalRequests": "Total Requests",
+      "completed": "Completed",
+      "completionRate": "Completion Rate",
+      "pending": "Pending / In Progress",
+      "categoryCol": "Category",
+      "totalCol": "Total",
+      "doneCol": "Completed",
+      "inProgressCol": "In Progress / Waiting",
+      "rateCol": "Rate",
+      "empty": "No maintenance history"
+    },
+    "occupancy": {
+      "totalUnits": "Total Units",
+      "occupancyRate": "Occupancy Rate",
+      "vacant": "Vacant",
+      "rented": "Rented",
+      "owner": "Owner-Occupied",
+      "expiringTitle": "Leases Expiring Soon (Within 90 Days)",
+      "noExpiring": "No leases expiring soon",
+      "unitCol": "Unit",
+      "tenantCol": "Tenant",
+      "phoneCol": "Phone",
+      "endCol": "End Date",
+      "rentCol": "Rent/Mo",
+      "daysLeftCol": "Days Left",
+      "days": "{{count}} days",
+      "expired": "Expired"
+    }
   }
 }

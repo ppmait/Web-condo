@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router'
 import { useAuth } from '../auth/useAuth'
+import { PropertyProvider } from '../property/PropertyProvider'
 import { BillingProvider } from '../billing/BillingProvider'
 import { FacilitiesProvider } from '../facilities/FacilitiesProvider'
 import { MaintenanceProvider } from '../maintenance/MaintenanceProvider'
+import { AnnouncementsProvider } from '../announcements/AnnouncementsProvider'
 import LanguageToggle from '../components/LanguageToggle'
 import NotificationBell from './NotificationBell'
 import Sidebar from './Sidebar'
@@ -31,10 +33,12 @@ export default function AppShell() {
   }, [drawerOpen])
 
   return (
-    <BillingProvider>
-      <MaintenanceProvider>
-        <FacilitiesProvider>
-          <div className="min-h-screen bg-surface md:flex">
+    <PropertyProvider>
+      <BillingProvider>
+        <MaintenanceProvider>
+          <FacilitiesProvider>
+            <AnnouncementsProvider>
+            <div className="min-h-screen bg-surface md:flex">
             {drawerOpen && (
               <div
                 data-testid="drawer-backdrop"
@@ -73,8 +77,10 @@ export default function AppShell() {
               </main>
             </div>
           </div>
-        </FacilitiesProvider>
-      </MaintenanceProvider>
-    </BillingProvider>
+        </AnnouncementsProvider>
+      </FacilitiesProvider>
+    </MaintenanceProvider>
+  </BillingProvider>
+</PropertyProvider>
   )
 }
