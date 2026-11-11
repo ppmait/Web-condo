@@ -1,6 +1,8 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it } from 'vitest'
+import { AnnouncementsProvider } from '../announcements/AnnouncementsProvider'
+import { ANNOUNCEMENTS_KEY, makeAnnouncementsSeed } from '../announcements/seed'
 import { DEMO_TECH_PHONE, DEMO_TENANT_PHONE } from '../auth/demoAccounts'
 import { BillingProvider } from '../billing/BillingProvider'
 import { BILLING_KEY } from '../billing/localBillingApi'
@@ -49,15 +51,30 @@ function Probe() {
 }
 
 /** the data a visit would have left in storage; `edit` may change the maintenance and the facilities data first */
-function seed(edit: { maintenance?: (d: typeof maintenance) => void; facilities?: (d: typeof facilities) => void } = {}) {
+function seed(edit: {
+  maintenance?: (d: typeof maintenance) => void
+  facilities?: (d: typeof facilities) => void
+  announcements?: (d: ReturnType<typeof makeAnnouncementsSeed>) => void
+} = {}) {
   const m = structuredClone(maintenance)
   const f = structuredClone(facilities)
   edit.maintenance?.(m)
   edit.facilities?.(f)
+  const annSeed = makeAnnouncementsSeed(today)
+  if (edit.announcements) {
+    edit.announcements(annSeed)
+  } else {
+    for (const a of annSeed.announcements) {
+      if (!a.readBy.includes(DEMO_TENANT_PHONE)) {
+        a.readBy.push(DEMO_TENANT_PHONE)
+      }
+    }
+  }
   localStorage.setItem(PROPERTY_KEY, JSON.stringify(property))
   localStorage.setItem(BILLING_KEY, JSON.stringify(billing))
   localStorage.setItem(MAINTENANCE_KEY, JSON.stringify(m))
   localStorage.setItem(FACILITIES_KEY, JSON.stringify(f))
+  localStorage.setItem(ANNOUNCEMENTS_KEY, JSON.stringify(annSeed))
 }
 
 const open = async (as: 'tenant' | 'juristic' | 'technician', path: string, edit: Parameters<typeof seed>[0] = {}) => {
@@ -69,7 +86,9 @@ const open = async (as: 'tenant' | 'juristic' | 'technician', path: string, edit
       <BillingProvider>
         <MaintenanceProvider>
           <FacilitiesProvider>
-            <Probe />
+            <AnnouncementsProvider>
+              <Probe />
+            </AnnouncementsProvider>
           </FacilitiesProvider>
         </MaintenanceProvider>
       </BillingProvider>
@@ -216,5 +235,45 @@ describe('useNotifications', () => {
 
   it('has the facility kinds only the roles they are meant for', () => {
     expect(TENANT_FACILITY_TYPES).not.toEqual(OFFICE_FACILITY_TYPES)
+  })
+
+  it('includes unread live announcements for tenant only, and marks them read', async () => {
+    // leave unread announcements as-is for demo tenant
+    await open('tenant', '/tenant/overview', {
+      announcements: () => {}, // keeps default seed unread
+    })
+    await waitFor(() => expect(screen.getByTestId('unread')).not.toHaveTextContent('0'))
+
+    const annNotices = notices().filter((n) => n.textContent?.startsWith('announcements|'))
+    expect(annNotices.length).toBeGreaterThanOrEqual(2)
+    expect(annNotices[0].textContent).toContain('ประกาศใหม่:')
+
+    // Click read on first announcement notice
+    const firstAnnBtn = within(annNotices[0]).getByRole('button')
+    await userEvent.click(firstAnnBtn)
+
+    await waitFor(() => {
+      const storedAnn = JSON.parse(localStorage.getItem(ANNOUNCEMENTS_KEY)!)
+      const target = storedAnn.announcements.find(
+        (a: any) => `announcements:${a.id}` === annNotices[0].querySelector('button')?.textContent?.replace('read ', ''),
+      )
+      expect(target.readBy).toContain(DEMO_TENANT_PHONE)
+    })
+  })
+
+  it('does not send announcement notices to juristic', async () => {
+    await open('juristic', '/juristic/dashboard', {
+      announcements: () => {},
+    })
+    await waitFor(() => expect(notices().length).toBeGreaterThan(0))
+    expect(notices().some((n) => n.textContent?.startsWith('announcements|'))).toBe(false)
+  })
+
+  it('does not send announcement notices to technician', async () => {
+    await open('technician', '/technician/jobs', {
+      announcements: () => {},
+    })
+    await waitFor(() => expect(notices().length).toBeGreaterThan(0))
+    expect(notices().some((n) => n.textContent?.startsWith('announcements|'))).toBe(false)
   })
 })

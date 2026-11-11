@@ -722,5 +722,205 @@
       "rejectReason": "กรุณาระบุเหตุผลที่ปฏิเสธ",
       "notBillable": "ห้องนี้ไม่ได้ถูกเรียกเก็บในรอบนี้ (ไม่มีสัญญาที่ครอบรอบนี้)"
     }
+  },
+  "announcements": {
+    "title": "ประกาศข่าวสาร",
+    "filter": {
+      "all": "ทั้งหมด",
+      "live": "กำลังเผยแพร่",
+      "expired": "หมดอายุแล้ว"
+    },
+    "category": {
+      "general": "ทั่วไป",
+      "maintenance": "ซ่อมบำรุง",
+      "event": "กิจกรรม",
+      "urgent": "เร่งด่วน"
+    },
+    "status": {
+      "live": "กำลังเผยแพร่",
+      "expired": "หมดอายุแล้ว",
+      "pinned": "ปักหมุด",
+      "new": "ใหม่"
+    },
+    "columns": {
+      "code": "รหัสประกาศ",
+      "category": "หมวดหมู่",
+      "title": "หัวข้อ",
+      "published": "วันที่ประกาศ",
+      "expiresOn": "วันหมดอายุ",
+      "pinned": "ปักหมุด",
+      "readCount": "อ่านแล้ว",
+      "status": "สถานะ",
+      "actions": "จัดการ"
+    },
+    "actions": {
+      "create": "สร้างประกาศ",
+      "edit": "แก้ไข",
+      "delete": "ลบ",
+      "view": "ดูรายละเอียด",
+      "markAllRead": "อ่านทั้งหมด"
+    },
+    "fields": {
+      "title": "หัวข้อประกาศ",
+      "body": "เนื้อหาประกาศ",
+      "category": "หมวดหมู่",
+      "pinned": "ปักหมุดประกาศนี้",
+      "expiresOn": "วันหมดอายุ (ไม่บังคับ)",
+      "author": "ผู้ประกาศ",
+      "published": "วันที่ประกาศ"
+    },
+    "dialog": {
+      "createTitle": "สร้างประกาศใหม่",
+      "editTitle": "แก้ไขประกาศ {{code}}",
+      "deleteTitle": "ยืนยันการลบประกาศ",
+      "deleteConfirm": "คุณต้องการลบประกาศ \"{{title}}\" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้",
+      "notFound": "ไม่พบประกาศนี้แล้ว",
+      "saving": "กำลังบันทึก…",
+      "deleting": "กำลังลบ…",
+      "save": "บันทึกประกาศ",
+      "cancel": "ยกเลิก"
+    },
+    "tenant": {
+      "open": "เปิดประกาศ {{code}}",
+      "empty": "ยังไม่มีประกาศข่าวสาร",
+      "pinnedBadge": "ปักหมุด",
+      "newBadge": "ใหม่",
+      "expires": "หมดอายุ: {{date}}",
+      "noExpiry": "ไม่มีวันหมดอายุ"
+    },
+    "juristic": {
+      "empty": "ไม่มีประกาศที่ตรงกับเงื่อนไข",
+      "readCount": "{{count}} คน"
+    },
+    "notifications": {
+      "newAnnouncement": "ประกาศใหม่: {{title}}"
+    },
+    "errors": {
+      "title": "กรุณาระบุหัวข้อประกาศ (ไม่เกิน 100 ตัวอักษร)",
+      "body": "กรุณาระบุเนื้อหาประกาศ (ไม่เกิน 2,000 ตัวอักษร)",
+      "category": "กรุณาเลือกหมวดหมู่",
+      "expiresOn": "วันหมดอายุต้องเป็นวันที่จริงและไม่ใช่อดีต",
+      "incomplete": "กรุณากรอกข้อมูลให้ครบถ้วน",
+      "notFound": "ไม่พบประกาศนี้แล้ว",
+      "storageFailed": "พื้นที่จัดเก็บเต็ม ไม่สามารถบันทึกประกาศได้",
+      "failed": "บันทึกประกาศไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+    }
+  },
+  "overview": {
+    "title": "ภาพรวมห้องชุด",
+    "welcome": "ยินดีต้อนรับ, {{name}}",
+    "unitInfo": "ห้องชุด {{code}} · อาคาร {{tower}} ชั้น {{floor}}",
+    "leaseActive": "สัญญาเช่า: {{start}} ถึง {{end}} ({{rent}} บาท/เดือน)",
+    "noLease": "ไม่มีสัญญาเช่าที่เปิดใช้งาน",
+    "cards": {
+      "unpaidBills": "บิลที่ต้องชำระ",
+      "waitingParcels": "พัสดุรอรับ",
+      "activeRepairs": "รายการแจ้งซ่อม",
+      "upcomingBookings": "การจองพื้นที่ส่วนกลาง"
+    },
+    "noUnpaidBills": "ไม่มีบิลค้างชำระ",
+    "unpaidDue": "ครบกำหนด {{due}}",
+    "payNow": "ชำระเงิน",
+    "viewParcels": "ดูพัสดุ",
+    "viewRepairs": "ดูรายการแจ้งซ่อม",
+    "viewBookings": "ดูการจอง",
+    "announcementsTitle": "ประกาศและข่าวสารล่าสุด",
+    "viewAllAnnouncements": "ดูประกาศทั้งหมด",
+    "noAnnouncements": "ไม่มีประกาศในขณะนี้",
+    "quickActions": "เมนูด่วน",
+    "newRepair": "แจ้งซ่อมใหม่",
+    "bookFacility": "จองพื้นที่ส่วนกลาง",
+    "viewBilling": "ดูบิลและการชำระเงิน"
+  },
+  "dashboard": {
+    "title": "แดชบอร์ดนิติบุคคล",
+    "kpis": {
+      "occupancy": "อัตราการพักอาศัย",
+      "occupancyDetail": "ผู้เช่า {{rented}} · เจ้าของ {{owner}} · ว่าง {{vacant}}",
+      "unpaidInvoices": "บิลค้างชำระ",
+      "unpaidDetail": "รอชำระ {{count}} ใบ",
+      "pendingSlips": "สลิปรอตรวจสอบ",
+      "pendingSlipsDetail": "รอตรวจ {{count}} รายการ",
+      "pendingRepairs": "งานแจ้งซ่อมคงค้าง",
+      "pendingRepairsDetail": "รอมอบหมาย {{waiting}} · กำลังซ่อม {{progress}}",
+      "waitingParcels": "พัสดุรอรับ",
+      "waitingParcelsDetail": "คงค้างที่นิติ {{count}} ชิ้น"
+    },
+    "quickActions": "ทางลัดเมนู",
+    "actions": {
+      "units": "ห้องชุดและสัญญา",
+      "billing": "บิลและมิเตอร์",
+      "maintenance": "จัดการงานซ่อม",
+      "parcels": "พัสดุและการจอง",
+      "announcements": "สร้างประกาศ",
+      "reports": "ดูรายงาน"
+    },
+    "recentSlips": "สลิปที่รอการตรวจสอบ",
+    "recentRepairs": "งานซ่อมที่รอมอบหมาย",
+    "recentAnnouncements": "ประกาศล่าสุด",
+    "noPendingSlips": "ไม่มีสลิปที่รอตรวจสอบ",
+    "noPendingRepairs": "ไม่มีงานซ่อมที่รอมอบหมาย",
+    "viewAll": "ดูทั้งหมด",
+    "unit": "ห้อง",
+    "tenant": "ผู้เช่า",
+    "amount": "ยอดเงิน",
+    "date": "วันที่",
+    "action": "ดำเนินการ",
+    "review": "ตรวจสอบ",
+    "assign": "มอบหมาย",
+    "readCount": "อ่านแล้ว {{count}} คน"
+  },
+  "reports": {
+    "title": "รายงานและสถิติ",
+    "print": "พิมพ์รายงาน",
+    "tabs": {
+      "financial": "รายงานการเงิน",
+      "maintenance": "รายงานการซ่อมบำรุง",
+      "occupancy": "รายงานการอยู่อาศัย"
+    },
+    "period": "รอบบิล",
+    "allPeriods": "ทุกรอบบิล",
+    "financial": {
+      "totalRevenue": "รายได้ที่เก็บได้แล้ว",
+      "outstanding": "ยอดค้างชำระ",
+      "waterRevenue": "ค่าน้ำประปา",
+      "electricRevenue": "ค่าไฟฟ้า",
+      "commonRevenue": "ค่าส่วนกลาง",
+      "periodCol": "รอบบิล",
+      "totalBilled": "ยอดเรียกเก็บรวม",
+      "collected": "เก็บได้แล้ว",
+      "pending": "ค้างชำระ",
+      "collectionRate": "อัตราการจัดเก็บ",
+      "empty": "ไม่มีข้อมูลการเงินในรอบที่เลือก"
+    },
+    "maintenance": {
+      "totalRequests": "การแจ้งซ่อมทั้งหมด",
+      "completed": "ซ่อมเสร็จสิ้น",
+      "completionRate": "อัตราความสำเร็จ",
+      "pending": "รอดำเนินการ",
+      "categoryCol": "หมวดหมู่",
+      "totalCol": "จำนวนทั้งหมด",
+      "doneCol": "เสร็จสิ้น",
+      "inProgressCol": "กำลังซ่อม/รอช่าง",
+      "rateCol": "ความสำเร็จ",
+      "empty": "ไม่มีประวัติการแจ้งซ่อม"
+    },
+    "occupancy": {
+      "totalUnits": "ห้องชุดทั้งหมด",
+      "occupancyRate": "อัตราการเข้าพัก",
+      "vacant": "ห้องว่าง",
+      "rented": "มีผู้เช่า",
+      "owner": "เจ้าของพักอาศัย",
+      "expiringTitle": "สัญญาเช่าที่ใกล้หมดอายุ (ภายใน 90 วัน)",
+      "noExpiring": "ไม่มีสัญญาเช่าที่ใกล้หมดอายุ",
+      "unitCol": "ห้อง",
+      "tenantCol": "ผู้เช่า",
+      "phoneCol": "เบอร์โทรศัพท์",
+      "endCol": "วันสิ้นสุดสัญญา",
+      "rentCol": "ค่าเช่า/เดือน",
+      "daysLeftCol": "คงเหลือ",
+      "days": "{{count}} วัน",
+      "expired": "หมดอายุแล้ว"
+    }
   }
 }

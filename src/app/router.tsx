@@ -15,6 +15,8 @@ import JuristicFacilitiesPage from '../features/facilities/JuristicFacilitiesPag
 import ParcelsTab from '../features/facilities/ParcelsTab'
 import TenantParcelsPage from '../features/facilities/TenantParcelsPage'
 import TenantFacilitiesPage from '../features/facilities/TenantFacilitiesPage'
+import TenantAnnouncementsPage from '../features/announcements/TenantAnnouncementsPage'
+import JuristicAnnouncementsPage from '../features/announcements/JuristicAnnouncementsPage'
 import TechnicianJobsPage from '../features/maintenance/TechnicianJobsPage'
 import TenantMaintenancePage from '../features/maintenance/TenantMaintenancePage'
 import TenantBillingPage from '../features/billing/TenantBillingPage'
@@ -22,6 +24,9 @@ import InspectionsTab from '../features/units/InspectionsTab'
 import LeasesTab from '../features/units/LeasesTab'
 import UnitsPage from '../features/units/UnitsPage'
 import UnitsTab from '../features/units/UnitsTab'
+import TenantOverviewPage from '../features/overview/TenantOverviewPage'
+import JuristicDashboardPage from '../features/dashboard/JuristicDashboardPage'
+import JuristicReportsPage from '../features/reports/JuristicReportsPage'
 import AppShell from './AppShell'
 import { NAV_BY_ROLE, ROLES, roleHome } from './roles'
 
@@ -32,8 +37,30 @@ const JURISTIC_MAINTENANCE_PATH = '/juristic/maintenance' // built page
 const TECHNICIAN_JOBS_PATH = '/technician/jobs' // built page
 const TENANT_FACILITIES_PATH = '/tenant/facilities' // built page
 const TENANT_PARCELS_PATH = '/tenant/parcels' // built page
+const TENANT_ANNOUNCEMENTS_PATH = '/tenant/announcements' // built page
+const JURISTIC_ANNOUNCEMENTS_PATH = '/juristic/announcements' // built page
 const JURISTIC_FACILITIES_PATH = '/juristic/parcels-bookings' // built page with its own nested tab routes
 const JURISTIC_BILLING_PATH = '/juristic/billing' // built page with its own nested tab routes
+const TENANT_OVERVIEW_PATH = '/tenant/overview' // built page
+const JURISTIC_DASHBOARD_PATH = '/juristic/dashboard' // built page
+const JURISTIC_REPORTS_PATH = '/juristic/reports' // built page
+
+const BUILT_PATHS = new Set([
+  UNITS_PATH,
+  TENANT_BILLING_PATH,
+  JURISTIC_BILLING_PATH,
+  TENANT_MAINTENANCE_PATH,
+  JURISTIC_MAINTENANCE_PATH,
+  TECHNICIAN_JOBS_PATH,
+  TENANT_FACILITIES_PATH,
+  TENANT_PARCELS_PATH,
+  JURISTIC_FACILITIES_PATH,
+  TENANT_ANNOUNCEMENTS_PATH,
+  JURISTIC_ANNOUNCEMENTS_PATH,
+  TENANT_OVERVIEW_PATH,
+  JURISTIC_DASHBOARD_PATH,
+  JURISTIC_REPORTS_PATH,
+])
 
 export function AppRoutes() {
   return (
@@ -50,9 +77,14 @@ export function AppRoutes() {
           ))}
           {ROLES.flatMap((role) =>
             NAV_BY_ROLE[role]
-              .filter((item) => item.path !== UNITS_PATH && item.path !== TENANT_BILLING_PATH && item.path !== JURISTIC_BILLING_PATH && item.path !== TENANT_MAINTENANCE_PATH && item.path !== JURISTIC_MAINTENANCE_PATH && item.path !== TECHNICIAN_JOBS_PATH && item.path !== TENANT_FACILITIES_PATH && item.path !== TENANT_PARCELS_PATH && item.path !== JURISTIC_FACILITIES_PATH)
+              .filter((item) => !BUILT_PATHS.has(item.path))
               .map((item) => <Route key={item.path} path={item.path} element={<PlaceholderPage />} />),
           )}
+          <Route path={TENANT_OVERVIEW_PATH} element={<TenantOverviewPage />} />
+          <Route path={JURISTIC_DASHBOARD_PATH} element={<JuristicDashboardPage />} />
+          <Route path={JURISTIC_REPORTS_PATH} element={<JuristicReportsPage />} />
+          <Route path={TENANT_ANNOUNCEMENTS_PATH} element={<TenantAnnouncementsPage />} />
+          <Route path={JURISTIC_ANNOUNCEMENTS_PATH} element={<JuristicAnnouncementsPage />} />
           <Route path={TENANT_BILLING_PATH} element={<TenantBillingPage />} />
           <Route path={TENANT_MAINTENANCE_PATH} element={<TenantMaintenancePage />} />
           <Route path={JURISTIC_MAINTENANCE_PATH} element={<JuristicMaintenancePage />} />
