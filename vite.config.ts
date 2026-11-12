@@ -4,6 +4,7 @@ import { configDefaults, defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/Web-condo/',
   plugins: [react(), tailwindcss()],
   test: {
     environment: 'jsdom',
